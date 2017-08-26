@@ -1,6 +1,6 @@
 # leangoo-front
 
-> A Vue.js project
+> vue+vuex+elementUi+axios
 
 ## Build Setup
 
