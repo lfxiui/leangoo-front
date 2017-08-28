@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div> 
     <el-menu class="header" theme="dark" mode="horizontal">
       <li class="header-left">
         <img src="../../assets/leangoo_logo.png" height="38" style="float: left">
@@ -24,15 +24,9 @@
   </div>
 </template>
 <script type="text/ecmascript-6">
-  import ElMenu from "../../../node_modules/element-ui/packages/menu/src/menu";
-  import ElMenuItem from "../../../node_modules/element-ui/packages/menu/src/menu-item";
-  import ElSubmenu from "../../../node_modules/element-ui/packages/menu/src/submenu";
-  import MenuRight from "../../common/header/menu-right.vue"
+import MenuRight from './menu-right'
   export default{
     components: {
-      ElSubmenu,
-      ElMenuItem,
-      ElMenu,
       MenuRight
     },
     data() {
@@ -69,7 +63,6 @@
     width: 200px;
     height: 28px;
     border-radius: 9px;
-    display: inline-block;
     float: left;
     border: none;
     margin-top: 7px;
