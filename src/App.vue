@@ -25,5 +25,8 @@ export default {
   background-color: rgb(14,116,175);
   margin: 0;
   padding: 0;
+  height: 100%;
+  width: 100%;
+  position:absolute;
 }
 </style>

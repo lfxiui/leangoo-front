@@ -41,7 +41,7 @@
           </el-dropdown-item>
           <el-dropdown-item>设置背景</el-dropdown-item>
           <el-dropdown-item>版本更新</el-dropdown-item>
-          <el-dropdown-item>返回首页</el-dropdown-item>
+          <el-dropdown-item><router-link to="/">回到首页</router-link></el-dropdown-item>
           <el-dropdown-item>退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
