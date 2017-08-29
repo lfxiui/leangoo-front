@@ -2,7 +2,7 @@
   <div> 
     <el-menu class="header" theme="dark" mode="horizontal">
       <li class="header-left">
-        <img src="../../assets/leangoo_logo.png" height="38" style="float: left">
+        <img src="../../assets/team_logo.png" height="38" style="float: left">
         <ul>
           <li>
             <input class="input">
@@ -12,9 +12,9 @@
       </li>
       <li class="header-center">
         <ul>
-          <li><a href="#">活动</a></li>
-          <li><a href="#">文章</a></li>
-          <li><a href="#">课程</a></li>
+          <li><a href="https://www.leangoo.com/event.html" target="_blank">活动</a></li>
+          <li><a href="https://www.leangoo.com/category/%E6%96%87%E7%AB%A0" target="_blank">文章</a></li>
+          <li><a href="http://www.scrumcn.com/agile/" target="">课程</a></li>
         </ul>
       </li>
       <li class="header-right">
@@ -34,14 +34,10 @@ import MenuRight from './menu-right'
 
       }
     },
-    methods: {
-
-    }
-
   }
 </script>
 <style scoped>
-  a {
+ a {
     text-decoration: none;
     color: #cccccc;
   }
