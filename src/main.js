@@ -3,9 +3,15 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import ElementUi from 'element-ui'
+import 'element-ui/lib/theme-default/index.css'
+import axios from 'axios'
 
 Vue.config.productionTip = false
-
+router.mode="history"
+Vue.use(ElementUi)
+axios.defaults.baseURL = '/api'
+Vue.prototype.$ajax=axios
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
