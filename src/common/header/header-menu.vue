@@ -43,8 +43,8 @@ import MenuRight from './menu-right'
   }
 
   .header {
-    background: #0C6395;
-    height: 45px;
+    background-color: rgba(0, 0, 0, 0.2);
+    height: 45px;;
     margin: 0;
     color: white;
     overflow: hidden;
