@@ -17,11 +17,11 @@
         <b-collapse id="collapse1" no-body>
           <b-card>
             <div class="card-text">
-                <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new">
-                  <div class="card-text">
-                    <span style="font-size: 16px;line-height: 90px">新建面板</span>
-                  </div>
-                </b-card>
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new">
+                <div class="card-text">
+                  <span style="font-size: 16px;line-height: 90px">新建面板</span>
+                </div>
+              </b-card>
               <draggable v-model="PersonalBoard" class="card-deck" :move="checkMove" @update="datadragEnd" :options="{ghostClass: 'ghost',animation: 0}">
                 <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none">
                   <div class="card-text" style="color:rgb(85,85,85)">
@@ -34,10 +34,9 @@
         </b-collapse>
       </div>
     </div>
-
     <div class="project-section mt-2" v-for="(Project,index) in ProjectList" :key="index">
       <div class="board_category">
-         <b-button-toolbar>
+        <b-button-toolbar>
           <icon name="cubes"></icon>
           <h6 style="padding-left: 15px">{{Project.ProjectName}}</h6>
           <b-button-group class="button-group1 mx-3" size="sm">
@@ -49,14 +48,14 @@
             <icon :name="icon"></icon>
           </b-button>
         </b-button-toolbar>
-          <b-collapse no-body :id="'collapes'+index" class="coll">
+        <b-collapse no-body :id="'collapes'+index" class="coll">
           <b-card>
             <div class="card-text">
-                <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new">
-                  <div class="card-text">
-                    <span style="font-size: 16px;line-height: 90px">新建面板</span>
-                  </div>
-                </b-card>
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new">
+                <div class="card-text">
+                  <span style="font-size: 16px;line-height: 90px">新建面板</span>
+                </div>
+              </b-card>
               <draggable v-model="Project.BoardList" class="card-deck" :move="checkMove" @update="datadragEnd" :options="{ghostClass: 'ghost',animation: 0}">
                 <b-card v-for="(Board,index) in Project.BoardList" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none">
                   <div class="card-text" style="color:rgb(85,85,85)">
@@ -68,6 +67,12 @@
           </b-card>
         </b-collapse>
       </div>
+    </div>
+    <div class="archive-category">
+      <ul>
+        <li><a href="#">查看已归档看板</a></li>
+        <li><a href="#">查看已归档项目</a></li>
+      </ul>
     </div>
   </div>
 </template>
@@ -106,6 +111,7 @@ export default {
     datadragEnd(evt) {
       console.log('拖动前索引:' + evt.oldIndex)
       console.log('拖动后索引:' + evt.newIndex)
+
       console.log(this.PersonalBoard[0].BoardName)
     }
   },
@@ -142,21 +148,26 @@ export default {
   background-color: #0E74AF;
   border: none;
 }
-.coll .card{
+
+.coll .card {
   background-color: #0E74AF;
   border: none
-}
-
-.flip-list-move {
-  transition: transform 0.5s;
-}
-
-.no-move {
-  transition: transform 0s;
 }
 
 .ghost {
   opacity: .5;
   background: #C8EBFB;
+}
+
+.archive-category {
+  float: left;
+  margin-top: 30px;
+}
+.archive-category ul{
+  list-style: none;
+}
+.archive-category ul li a{
+  color:white;
+  text-decoration: underline;
 }
 </style>
