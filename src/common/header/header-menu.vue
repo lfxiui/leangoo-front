@@ -68,14 +68,14 @@
 
 <script>
 import MenuBoard from '../../common/header/menu-board.vue'
+import Bus from '../../bus.js'
 export default {
   components: {
     MenuBoard
   },
   watch:{
     term(newValue){
-      this.term=newValue
-      this.$emit('search',this.term)
+      Bus.$emit('search',newValue);
     }
   },
   data() {
@@ -87,7 +87,7 @@ export default {
     }
   },
   created() {
-    this.$ajax.get('/getUserInfo').then(res => { this.UserAccount = res.data.UserAccount })
+    this.$ajax.post('/getUserInfo').then(res => { this.UserAccount = res.data.UserAccount })
   }
 }
 

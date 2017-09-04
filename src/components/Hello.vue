@@ -34,7 +34,7 @@
         </b-collapse>
       </div>
     </div>
-    <div class="project-section mt-2" v-for="(Project,index) in ProjectList" :key="index">
+    <div class="project-section mt-2" v-for="(Project,index) in  searchResult" :key="index">
       <div class="board_category">
         <b-button-toolbar>
           <icon name="cubes"></icon>
@@ -83,6 +83,7 @@
 
 <script>
 import draggable from 'vuedraggable'
+import Bus from '../bus.js'
 export default {
   components: { draggable },
   data() {
@@ -92,6 +93,7 @@ export default {
       disabled: true,
       ProjectList: [],
       searchResult:[],
+      searhcOptions:{keys:['BoardName']},
       PersonalBoard: [],
       term:''
     }
@@ -102,10 +104,32 @@ export default {
         this.disabled = false;
       } else this.disabled = true
     },
+    term(){
+         if(this.term!='')
+      this.$search(this.term,this.ProjectList,{keys:["BoardList.BoardName"]}).then(result=>{
+        this.searchResult=result
+      });else this.searchResult=this.ProjectList;
+    }
   },
   computed: {
     SortPersonalBoard() {
-      return this.lodash.orderBy(this.PersonalBoard, this.OrderByFlag)
+      var filterKey=this.term;
+      var data=this.PersonalBoard;
+      if(filterKey!=''){
+      data=  this.PersonalBoard.filter(function(Board){
+          return Object.keys(Board).some(function(key){
+              return String(Board[key]).toLowerCase().indexOf(filterKey)>-1
+          })
+        })
+      }
+      return this.lodash.orderBy(data,this.OrderByFlag)
+    },
+    SortProjectBoard(){
+      if(this.term!='')
+      this.$search(this.term,this.ProjectList,{keys:["BoardList.BoardName"]}).then(result=>{
+        this.searchResult=result
+      });
+      return this.ProjectList
     },
     dragOptions() {
       return {
@@ -135,18 +159,18 @@ export default {
       }
       console.log(this.PersonalBoard[0].BoardName+this.PersonalBoard[0].BoardLocate)
     },
-    search(value){
-      this.term=value;
-      console.term;
-    }
   },
   created() {
     this.$ajax.post('/getUserProjectList').then((res) => {
       this.ProjectList = res.data.data;
       this.PersonalBoard = res.data.PersonalBoard
+      this.searchResult=res.data.data
     }).catch(res => {
       console.log(res)
-    })
+    }),
+   Bus.$on('search',value=>{
+     this.term=value;
+   }) 
   }
 }
 </script>
