@@ -20,7 +20,7 @@
       </li>
     </ul>
     <b-nav is-nav-bar class="ml-auto">
-      <b-nav-item-dropdown right variant="defalut" size="sm" no-caret="true">
+      <b-nav-item-dropdown right variant="defalut" size="sm" :no-caret="no_caret">
         <template slot="button-content">
           <icon name="plus" scale="1" size="sm"></icon>
         </template>
@@ -44,7 +44,7 @@
       </b-button-group>
       <b-button-group>
         <img src="../../assets/agzou.jpg" width="32px" height="32px">
-        <b-nav-item-dropdown right variant="default" size="sm" no-caret="true">
+        <b-nav-item-dropdown right variant="default" size="sm" :no-caret="no_caret">
           <template slot="button-content">
             {{UserAccount}}
           </template>
@@ -72,6 +72,7 @@ export default {
   data() {
     return {
       isSticky: true,
+      no_caret:true,
       UserAccount:''
     }
   },
