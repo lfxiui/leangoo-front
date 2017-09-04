@@ -91,7 +91,9 @@ export default {
       OrderByFlag: 'BoardLocate',
       disabled: true,
       ProjectList: [],
+      searchResult:[],
       PersonalBoard: [],
+      term:''
     }
   },
   watch: {
@@ -99,8 +101,7 @@ export default {
       if (newValue === '') {
         this.disabled = false;
       } else this.disabled = true
-    }
-
+    },
   },
   computed: {
     SortPersonalBoard() {
@@ -133,6 +134,10 @@ export default {
         this.PersonalBoard[i].BoardLocate=i
       }
       console.log(this.PersonalBoard[0].BoardName+this.PersonalBoard[0].BoardLocate)
+    },
+    search(value){
+      this.term=value;
+      console.term;
     }
   },
   created() {

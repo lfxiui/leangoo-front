@@ -5,7 +5,7 @@
     <b-navbar-brand to="/"><img src="../../assets/team_logo.png" height="34px" width="130px"></b-navbar-brand>
 
     <b-nav-form>
-      <input type="text" id="header-search">
+      <input type="text" id="header-search" v-model="term">
       <icon name="search" scale="1.2" style="color: white;position: relative;left: -25px;cursor: pointer"></icon>
     </b-nav-form>
     <ul class="header-center">
@@ -72,11 +72,18 @@ export default {
   components: {
     MenuBoard
   },
+  watch:{
+    term(newValue){
+      this.term=newValue
+      this.$emit('search',this.term)
+    }
+  },
   data() {
     return {
       isSticky: true,
       no_caret: true,
-      UserAccount: ''
+      UserAccount: '',
+      term:''
     }
   },
   created() {
