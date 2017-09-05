@@ -3,14 +3,16 @@
     <div class="container">
     <div class="info">
       <div class="avatar" v-on:mouseover="onShow" v-on:mouseout="onHide" v-on:click="cardShow">
-        <img id="img" class="image" src="../../assets/SIXTEAM.png"/>
+        <img id="img" class="image" :src="user.UserAvatar"/>
         <span id="change" v-show="isShow" class="change">修改</span>
       </div>
       <div class="user-base-info" v-if="isChangeInfo==='no'">
-        <h3>name</h3>
-        <p>sex</p>
-        <p>email example:806941929@qq.com</p>
-        <p>intro example:I am so handsome!</p>
+        <h3>{{user.UserAccount}}</h3>
+        <p v-if="user.UserSex===0">男</p>
+        <p v-if="user.UserSex===1">女</p>
+        <p v-if="user.UserSex===null">未填写</p>
+        <p>{{user.UserEmail}}</p>
+        <p>{{user.UserIntro}}</p>
         <b-button variant="secondary" size="sm" v-on:click="changeInfo">
           <icon name="pencil"></icon>
           编辑个人资料
@@ -19,34 +21,34 @@
       <div class="user-base-info" v-if="isChangeInfo==='yes'">
         <b-form @submit="onSubmit">
           <b-form-group id="exampleInputGroup2"
-                        label="姓名:" label-for="exampleInput2">
-            <b-form-input id="exampleInput2"
-                          type="text" v-model="form.name" required
+                        label="姓名:" label-for="UserAccount">
+            <b-form-input id="UserAccount"
+                            type="text" v-model="form.UserAccount" required
                           placeholder="请输入姓名..."
                           size="sm"
             ></b-form-input>
           </b-form-group>
           <b-form-group id="exampleInputGroup3"
-                        label="性别:" label-for="exampleInput3">
-            <b-form-select id="exampleInput3"
+                        label="性别:" label-for="UserSex">
+            <b-form-select id="UserSex"
                            :options="sex" required
-                           v-model="form.sex"
+                           v-model="form.UserSex"
                            size="sm"
             ></b-form-select>
           </b-form-group>
           <b-form-group id="exampleInputGroup1"
-                        label="邮箱地址:" label-for="exampleInput1">
-            <b-form-input id="exampleInput1"
-                          type="email" v-model="form.email" required
+                        label="邮箱地址:" label-for="UserEmail">
+            <b-form-input id="UserEmail"
+                          type="email" v-model="form.UserEmail" required
                           placeholder="请输入邮箱地址..."
                           size="sm"
             ></b-form-input>
           </b-form-group>
           <b-form-group id="textarea1"
-                        label="简介:" label-for="textarea1">
-            <b-form-textarea id="textarea1" placeholder="请输入简介..."
+                        label="简介:" label-for="UserIntro">
+            <b-form-textarea id="UserIntro" placeholder="请输入简介..."
                              :rows="3"
-                             :max-rows="6" v-model="form.intro" required
+                             :max-rows="6" v-model="form.UserIntro" required
                              size="sm">
             </b-form-textarea>
           </b-form-group>
@@ -74,7 +76,43 @@
               <h5>基本信息</h5>
               <hr>
             </div>
-            <b-button variant="link" size="sm" class="myTab-link"><span>修改密码</span></b-button>
+            <b-button variant="link" size="sm" class="myTab-link" v-on:click="changePwd"><span>修改密码</span></b-button>
+            <div>
+              <b-card v-if="changePwdShow==='yes'" class="b-card">
+                <div slot="header">
+                  <small style="text-align: left">修改密码</small>
+                  <span v-on:click="changePwdHide" style="cursor: pointer"><icon name="times" style="float: right;"></icon></span>
+                </div>
+                <b-form @submit="onPwdSubmit">
+                  <b-form-group id="oldPwd"
+                                label="原密码:" label-for="oldPwd">
+                    <b-form-input id="oldPwd"
+                                  type="password" v-model="form2.oldPwd" required
+                                  placeholder="请输入原密码..."
+                                  size="sm"
+                    ></b-form-input>
+                  </b-form-group>
+                  <b-form-group id="newPwd"
+                                label="新密码:" label-for="newPwd">
+                    <b-form-input id="newPwd"
+                                  type="password" v-model="form2.newPwd" required
+                                  placeholder="请输入新密码..."
+                                  size="sm"
+                    ></b-form-input>
+                  </b-form-group>
+                  <b-form-group id="newPwd2"
+                                label="确认新密码:" label-for="newPwd2">
+                    <b-form-input id="newPwd2"
+                                  type="password" v-model="form2.newPwd2" required
+                                  placeholder="请输入确认新密码..."
+                                  size="sm"
+                    ></b-form-input>
+                  </b-form-group>
+                  <b-button type="submit" variant="success" size="sm">确认</b-button>
+                  <b-button variant="secondary" size="sm" v-on:click="changePwdHide">关闭</b-button>
+                </b-form>
+              </b-card>
+            </div>
           </div>
           <div class="myTab-body">
             <div class="myTab-title">
@@ -161,9 +199,19 @@
       cardHide: function () {
         this.isCardShow = 'no';
       },
+      changePwd: function () {
+        this.changePwdShow = 'yes';
+      },
+      changePwdHide: function () {
+        this.changePwdShow = 'no';
+      },
       onSubmit(evt) { //表单提交事件在这里
         evt.preventDefault();
         alert(JSON.stringify(this.form));
+      },
+      onPwdSubmit(evt) { //表单提交事件在这里
+        evt.preventDefault();
+        alert(JSON.stringify(this.form2));
       },
       changeInfo(){
           this.isChangeInfo = 'yes';
@@ -174,19 +222,27 @@
     },
     data () {
       return {
+        user:{},
         isShow: false,
         isCardShow: 'no',
         isChangeInfo: 'no',
+        changePwdShow: 'no',
         form: {
-          email: '',
-          name: '',
-          sex: null,
-          intro: '',
-          secret: 'S3CR3T'
+          UserEmail: '',
+          UserAccount: '22222',
+          UserSex: null,
+          UserIntro: ''
+          //secret: 'S3CR3T'
+        },
+        form2:{
+          oldPwd: '',
+          newPwd: '',
+          newPwd2: ''
         },
         sex: [
           {text: '选择性别', value: null},
-          '男', '女'
+          {text: '男', value: 0},
+          {text: '女', value: 1}
         ],
         friends:[
           {name:'test01',email:'test01@example.com',avatar:'http://localhost:8080/static/img/SIXTEAM.86e0bd8.png'},
@@ -194,6 +250,14 @@
           {name:'test03',email:'test03@example.com',avatar:'http://localhost:8080/static/img/SIXTEAM.86e0bd8.png'}
         ]
       }
+    },
+    created() {
+      this.$ajax.post('/getUserInfo').then((res) => {
+        this.user = res.data;
+        this.form = res.data;
+      }).catch(res => {
+        console.log(res)
+      })
     }
   }
 </script>
@@ -269,9 +333,8 @@
 
   .b-card {
     width: 350px;
-    height: 150px;
     top: 31%;
-    left: 414px;
+    left: 308px;
     position: fixed;
     z-index: 2000;
     right: 20px;
