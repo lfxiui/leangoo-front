@@ -1,72 +1,72 @@
 <template>
   <div class="user-info">
     <div class="container">
-    <div class="info">
-      <div class="avatar" v-on:mouseover="onShow" v-on:mouseout="onHide" v-on:click="cardShow">
-        <img id="img" class="image" :src="user.UserAvatar"/>
-        <span id="change" v-show="isShow" class="change">修改</span>
-      </div>
-      <div class="user-base-info" v-if="isChangeInfo==='no'">
-        <h3>{{user.UserAccount}}</h3>
-        <p v-if="user.UserSex===0">男</p>
-        <p v-if="user.UserSex===1">女</p>
-        <p v-if="user.UserSex===null">未填写</p>
-        <p>{{user.UserEmail}}</p>
-        <p>{{user.UserIntro}}</p>
-        <b-button variant="secondary" size="sm" v-on:click="changeInfo">
-          <icon name="pencil"></icon>
-          编辑个人资料
-        </b-button>
-      </div>
-      <div class="user-base-info" v-if="isChangeInfo==='yes'">
-        <b-form @submit="onSubmit">
-          <b-form-group id="exampleInputGroup2"
-                        label="姓名:" label-for="UserAccount">
-            <b-form-input id="UserAccount"
+      <div class="info">
+        <div class="avatar" v-on:mouseover="onShow" v-on:mouseout="onHide" v-on:click="cardShow">
+          <img id="img" class="image" :src="user.UserAvatar"/>
+          <span id="change" v-show="isShow" class="change">修改</span>
+        </div>
+        <div class="user-base-info" v-if="isChangeInfo==='no'">
+          <h3>{{user.UserAccount}}</h3>
+          <p v-if="user.UserSex===0">男</p>
+          <p v-if="user.UserSex===1">女</p>
+          <p v-if="user.UserSex===null">未填写</p>
+          <p>{{user.UserEmail}}</p>
+          <p>{{user.UserIntro}}</p>
+          <b-button variant="secondary" size="sm" v-on:click="changeInfo">
+            <icon name="pencil"></icon>
+            编辑个人资料
+          </b-button>
+        </div>
+        <div class="user-base-info" v-if="isChangeInfo==='yes'">
+          <b-form @submit="onSubmit">
+            <b-form-group id="exampleInputGroup2"
+                          label="姓名:" label-for="UserAccount">
+              <b-form-input id="UserAccount"
                             type="text" v-model="form.UserAccount" required
-                          placeholder="请输入姓名..."
-                          size="sm"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group id="exampleInputGroup3"
-                        label="性别:" label-for="UserSex">
-            <b-form-select id="UserSex"
-                           :options="sex" required
-                           v-model="form.UserSex"
-                           size="sm"
-            ></b-form-select>
-          </b-form-group>
-          <b-form-group id="exampleInputGroup1"
-                        label="邮箱地址:" label-for="UserEmail">
-            <b-form-input id="UserEmail"
-                          type="email" v-model="form.UserEmail" required
-                          placeholder="请输入邮箱地址..."
-                          size="sm"
-            ></b-form-input>
-          </b-form-group>
-          <b-form-group id="textarea1"
-                        label="简介:" label-for="UserIntro">
-            <b-form-textarea id="UserIntro" placeholder="请输入简介..."
-                             :rows="3"
-                             :max-rows="6" v-model="form.UserIntro" required
-                             size="sm">
-            </b-form-textarea>
-          </b-form-group>
-          <b-button type="submit" variant="success" size="sm">保存</b-button>
-          <b-button type="reset" variant="primary" size="sm">重置</b-button>
-          <b-button variant="secondary" size="sm" v-on:click="notChangeInfo">取消</b-button>
-        </b-form>
+                            placeholder="请输入姓名..."
+                            size="sm"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group id="exampleInputGroup3"
+                          label="性别:" label-for="UserSex">
+              <b-form-select id="UserSex"
+                             :options="sex" required
+                             v-model="form.UserSex"
+                             size="sm"
+              ></b-form-select>
+            </b-form-group>
+            <b-form-group id="exampleInputGroup1"
+                          label="邮箱地址:" label-for="UserEmail">
+              <b-form-input id="UserEmail"
+                            type="email" v-model="form.UserEmail" required
+                            placeholder="请输入邮箱地址..."
+                            size="sm"
+              ></b-form-input>
+            </b-form-group>
+            <b-form-group id="textarea1"
+                          label="简介:" label-for="UserIntro">
+              <b-form-textarea id="UserIntro" placeholder="请输入简介..."
+                               :rows="3"
+                               :max-rows="6" v-model="form.UserIntro" required
+                               size="sm">
+              </b-form-textarea>
+            </b-form-group>
+            <b-button type="submit" variant="success" size="sm">保存</b-button>
+            <b-button type="reset" variant="primary" size="sm">重置</b-button>
+            <b-button variant="secondary" size="sm" v-on:click="notChangeInfo">取消</b-button>
+          </b-form>
+        </div>
       </div>
-    </div>
     </div>
     <div>
-    <b-card v-if="isCardShow==='yes'" class="text-center b-card">
-      <div slot="header">
-        <small style="text-align: left">修改头像</small>
-        <span v-on:click="cardHide" style="cursor: pointer"><icon name="times" style="float: right;"></icon></span>
-      </div>
-      <b-form-file accept=".jpg, .png, .gif" choose-label="上传图片"></b-form-file>
-    </b-card>
+      <b-card v-if="isCardShow==='yes'" class="text-center b-card">
+        <div slot="header">
+          <small style="text-align: left">修改头像</small>
+          <span v-on:click="cardHide" style="cursor: pointer"><icon name="times" style="float: right;"></icon></span>
+        </div>
+        <b-form-file accept=".jpg, .png, .gif" choose-label="上传图片"></b-form-file>
+      </b-card>
     </div>
     <b-card no-body style="text-align: left;">
       <b-tabs ref="tabs" card>
@@ -214,7 +214,7 @@
         alert(JSON.stringify(this.form2));
       },
       changeInfo(){
-          this.isChangeInfo = 'yes';
+        this.isChangeInfo = 'yes';
       },
       notChangeInfo(){
         this.isChangeInfo = 'no';
@@ -253,8 +253,8 @@
     },
     created() {
       this.$ajax.post('/getUserInfo').then((res) => {
-        this.user = res.data;
-        this.form = res.data;
+        this.user = res.data.data;
+        this.form = res.data.data;
       }).catch(res => {
         console.log(res)
       })
