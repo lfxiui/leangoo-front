@@ -3,16 +3,16 @@
     <div class="container">
       <div class="info">
         <div class="avatar" v-on:mouseover="onShow" v-on:mouseout="onHide" v-on:click="cardShow">
-          <img id="img" class="image" :src="user.UserAvatar"/>
+          <img id="img" class="image" :src="user.userAvatar"/>
           <span id="change" v-show="isShow" class="change">修改</span>
         </div>
         <div class="user-base-info" v-if="isChangeInfo==='no'">
-          <h3>{{user.UserAccount}}</h3>
-          <p v-if="user.UserSex===0">男</p>
-          <p v-if="user.UserSex===1">女</p>
-          <p v-if="user.UserSex===null">未填写</p>
-          <p>{{user.UserEmail}}</p>
-          <p>{{user.UserIntro}}</p>
+          <h3>{{user.userAccount}}</h3>
+          <p v-if="user.userSex===0">男</p>
+          <p v-if="user.userSex===1">女</p>
+          <p v-if="user.userSex===null">未填写</p>
+          <p>{{user.userEmail}}</p>
+          <p>{{user.userIntro}}</p>
           <b-button variant="secondary" size="sm" v-on:click="changeInfo">
             <icon name="pencil"></icon>
             编辑个人资料
@@ -21,34 +21,34 @@
         <div class="user-base-info" v-if="isChangeInfo==='yes'">
           <b-form @submit="onSubmit">
             <b-form-group id="exampleInputGroup2"
-                          label="姓名:" label-for="UserAccount">
-              <b-form-input id="UserAccount"
-                            type="text" v-model="form.UserAccount" required
+                          label="姓名:" label-for="userAccount">
+              <b-form-input id="userAccount"
+                            type="text" v-model="form.userAccount" required
                             placeholder="请输入姓名..."
                             size="sm"
               ></b-form-input>
             </b-form-group>
             <b-form-group id="exampleInputGroup3"
-                          label="性别:" label-for="UserSex">
-              <b-form-select id="UserSex"
+                          label="性别:" label-for="userSex">
+              <b-form-select id="userSex"
                              :options="sex" required
-                             v-model="form.UserSex"
+                             v-model="form.userSex"
                              size="sm"
               ></b-form-select>
             </b-form-group>
             <b-form-group id="exampleInputGroup1"
-                          label="邮箱地址:" label-for="UserEmail">
-              <b-form-input id="UserEmail"
-                            type="email" v-model="form.UserEmail" required
+                          label="邮箱地址:" label-for="userEmail">
+              <b-form-input id="userEmail"
+                            type="email" v-model="form.userEmail" required
                             placeholder="请输入邮箱地址..."
                             size="sm"
               ></b-form-input>
             </b-form-group>
             <b-form-group id="textarea1"
-                          label="简介:" label-for="UserIntro">
-              <b-form-textarea id="UserIntro" placeholder="请输入简介..."
+                          label="简介:" label-for="userIntro">
+              <b-form-textarea id="userIntro" placeholder="请输入简介..."
                                :rows="3"
-                               :max-rows="6" v-model="form.UserIntro" required
+                               :max-rows="6" v-model="form.userIntro" required
                                size="sm">
               </b-form-textarea>
             </b-form-group>
@@ -210,8 +210,14 @@
         alert(JSON.stringify(this.form));
       },
       onPwdSubmit(evt) { //表单提交事件在这里
-        evt.preventDefault();
-        alert(JSON.stringify(this.form2));
+        if(this.form2.oldPwd != this.form.userPassword){
+            alert("原密码错误，请重新输入!")
+        }else if(this.form2.newPwd != this.form2.newPwd2){
+            alert("两次新密码输入不一致，请重新输入!")
+        }else {
+          evt.preventDefault();
+          alert(JSON.stringify(this.form2));
+        }
       },
       changeInfo(){
         this.isChangeInfo = 'yes';
