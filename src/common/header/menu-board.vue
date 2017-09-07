@@ -1,6 +1,6 @@
 <template>
   <div class="menu-board">
-    <div style="border-bottom: 1px rgb(140,140,140) inset;background-color:#F5F5F5 ">
+    <div style="background-color:#F5F5F5 ">
       看板导航</div>
     <b-form-input placeholder="输入看板名称进行过滤..." size="sm" v-model="term"></b-form-input>
     <div class="nav-board">
@@ -13,7 +13,7 @@
           <b-list-group style="margin:7px">
             <b-list-group-item v-for="(item,index) in personalResult" :key="index" :tag="'a'" style="margin-bottom:4px;height:40px;border-radius:4px;">
               <span class="thumbnail"></span>
-              <span class="board-list-item-name">{{item.BoardName}}</span>
+              <span class="board-list-item-name">{{item.boardName}}</span>
             </b-list-group-item>
           </b-list-group>
         </div>
@@ -22,14 +22,14 @@
     <div class="nav-board" v-for="(Project,index) in  searchResult" :key="index">
       <b-btn v-b-toggle="'m-collapse'+index" variant="default">
         <icon name="cubes" scale="1"></icon>
-        <span>{{Project.ProjectName}}</span>
+        <span>{{Project.projectName}}</span>
       </b-btn>
       <b-collapse :id="'m-collapse'+index">
         <div>
           <b-list-group style="margin:7px">
-            <b-list-group-item v-for="(item,index) in Project.BoardList" :key="index" :tag="'a'" style="margin-bottom:4px;height:40px;border-radius:4px;">
+            <b-list-group-item v-for="(item,index) in Project.boardList" :key="index" :tag="'a'" style="margin-bottom:4px;height:40px;border-radius:4px;">
               <span class="thumbnail"></span>
-              <span class="board-list-item-name">{{item.BoardName}}</span>
+              <span class="board-list-item-name">{{item.boardName}}</span>
             </b-list-group-item>
           </b-list-group>
         </div>
@@ -44,8 +44,8 @@ export default {
   data() {
     return {
       term: '',
-      PersonalBoard: [],
-      ProjectList: [],
+      personalBoard: [],
+      projectList: [],
       searchResult: [],
       personalResult: [],
     }
@@ -53,27 +53,27 @@ export default {
   watch: {
     term() {
       if (this.term != '') {
-        this.$search(this.term, this.ProjectList, { keys: ["BoardList.BoardName"] }).then(result => {
+        this.$search(this.term, this.projectList, { keys: ["boardList.boardName"] }).then(result => {
           this.searchResult = result
         });
-        this.$search(this.term, this.PersonalBoard, { keys: ["BoardName"] }).then(result => {
+        this.$search(this.term, this.personalBoard, { keys: ["boardName"] }).then(result => {
           this.personalResult = result
         });
       }
       else {
-        this.searchResult = this.ProjectList;
-        this.personalResult = this.PersonalBoard
+        this.searchResult = this.projectList;
+        this.personalResult = this.personalBoard
       }
     }
   },
   created() {
-    Bus.$on('initPersonalBoard', PersonalBoard => {
-      this.PersonalBoard = PersonalBoard;
-      this.personalResult=PersonalBoard;
+    Bus.$on('initPersonalBoard', personalBoard => {
+      this.personalBoard = personalBoard;
+      this.personalResult=personalBoard;
     });
-    Bus.$on('initProjectList', ProjectList => {
-      this.ProjectList = ProjectList;
-      this.searchResult=ProjectList;
+    Bus.$on('initProjectList', projectList => {
+      this.projectList = projectList;
+      this.searchResult=projectList;
     })
   }
 }
