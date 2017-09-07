@@ -173,6 +173,8 @@ export default {
     checkMove({ relatedContext, draggedContext }) {
       const draggedElment = draggedContext.element
       const relatedElement = relatedContext.element;
+      console.log("drag"+draggedElment.boardName);
+      console.log("relate"+relatedElement.boardName)
       return true;
     },
     datadragEnd(evt) {
