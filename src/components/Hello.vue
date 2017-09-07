@@ -17,13 +17,13 @@
         <b-collapse id="collapse1" no-body>
           <b-card>
             <div class="card-text">
-              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new">
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new" >
                 <div class="card-text">
                   <span style="font-size: 16px;line-height: 90px">新建面板</span>
                 </div>
               </b-card>
               <draggable v-model="personalBoard" class="card-deck" :move="checkMove" :options="dragOptions" @update="datadragEnd">
-                <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none">
+                <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
                     <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
                   </div>
@@ -57,7 +57,7 @@
                 </div>
               </b-card>
               <draggable v-model="Project.boardList" class="card-deck" :move="checkMove">
-                <b-card v-for="(Board,index) in Project.boardList" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none">
+                <b-card v-for="(Board,index) in Project.boardList" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
                     <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
                   </div>
@@ -184,6 +184,9 @@ export default {
       }
       console.log(this.personalBoard[0].boardName + this.personalBoard[0].boardLocate)
     },
+    router(boardId){
+      this.$router.push({path:'/board/'+boardId})
+    }
   },
   created() {
     this.$ajax.post('/getUserProjectList').then((res) => {
