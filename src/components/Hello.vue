@@ -71,13 +71,36 @@
     <div class="archive-category">
       <ul>
         <li>
-          <a href="#">查看已归档看板</a>
+          <a href="#" v-b-modal.modal1>查看已归档看板</a>
         </li>
         <li>
-          <a href="#">查看已归档项目</a>
+          <a href="#" v-b-modal.modal2>查看已归档项目</a>
         </li>
       </ul>
     </div>
+
+    <b-modal id="modal1" ref="modal1" title="已归档看板" style="color:black" :hide-footer="true">
+      <table class="table table-hover" style="font-size:14px;">
+        <tbody>
+            <tr v-for="(item,index) in  ArchiveBoardList" :key="index">
+                <td>{{item.BoardName}}</td>
+                <td><a href="#">撤销归档</a>&nbsp;&nbsp;&nbsp;<a href="#" style="color:red">彻底删除</a></td>
+            </tr>
+        </tbody>
+      </table>
+    </b-modal>
+
+      <b-modal id="modal2" ref="modal2" title="已归档项目" style="color:black" :hide-footer="true">
+      <table class="table table-hover" style="font-size:14px;">
+        <tbody>
+            <tr v-for="(item,index) in ArchiveProjectList" :key="index">
+                <td>{{item.ProjectName}}</td>
+                <td><a href="#">撤销归档</a>&nbsp;&nbsp;&nbsp;<a href="#" style="color:red">彻底删除</a></td>
+            </tr>
+        </tbody>
+      </table>
+    </b-modal>
+
   </div>
 </template>
 
@@ -92,10 +115,12 @@ export default {
       OrderByFlag: 'BoardLocate',
       disabled: true,
       ProjectList: [],
-      searchResult:[],
-      searhcOptions:{keys:['BoardName']},
+      searchResult: [],
+      searhcOptions: { keys: ['BoardName'] },
       PersonalBoard: [],
-      term:''
+      ArchiveProjectList:[],
+      ArchiveBoardList:[],
+      term: ''
     }
   },
   watch: {
@@ -104,31 +129,31 @@ export default {
         this.disabled = false;
       } else this.disabled = true
     },
-    term(){
-         if(this.term!='')
-      this.$search(this.term,this.ProjectList,{keys:["BoardList.BoardName"]}).then(result=>{
-        this.searchResult=result
-      });else this.searchResult=this.ProjectList;
+    term() {
+      if (this.term != '')
+        this.$search(this.term, this.ProjectList, { keys: ["BoardList.BoardName"] }).then(result => {
+          this.searchResult = result
+        }); else this.searchResult = this.ProjectList;
     }
   },
   computed: {
     SortPersonalBoard() {
-      var filterKey=this.term;
-      var data=this.PersonalBoard;
-      if(filterKey!=''){
-      data=  this.PersonalBoard.filter(function(Board){
-          return Object.keys(Board).some(function(key){
-              return String(Board[key]).toLowerCase().indexOf(filterKey)>-1
+      var filterKey = this.term;
+      var data = this.PersonalBoard;
+      if (filterKey != '') {
+        data = this.PersonalBoard.filter(function(Board) {
+          return Object.keys(Board).some(function(key) {
+            return String(Board[key]).toLowerCase().indexOf(filterKey) > -1
           })
         })
       }
-      return this.lodash.orderBy(data,this.OrderByFlag)
+      return this.lodash.orderBy(data, this.OrderByFlag)
     },
-    SortProjectBoard(){
-      if(this.term!='')
-      this.$search(this.term,this.ProjectList,{keys:["BoardList.BoardName"]}).then(result=>{
-        this.searchResult=result
-      });
+    SortProjectBoard() {
+      if (this.term != '')
+        this.$search(this.term, this.ProjectList, { keys: ["BoardList.BoardName"] }).then(result => {
+          this.searchResult = result
+        });
       return this.ProjectList
     },
     dragOptions() {
@@ -153,24 +178,34 @@ export default {
     datadragEnd(evt) {
       console.log('拖动前索引:' + evt.oldIndex)
       console.log('拖动后索引:' + evt.newIndex)
-      console.log(this.PersonalBoard[0].BoardName+this.PersonalBoard[0].BoardLocate)
-      for(let i=0;i<this.PersonalBoard.length;i++){
-        this.PersonalBoard[i].BoardLocate=i
+      console.log(this.PersonalBoard[0].BoardName + this.PersonalBoard[0].BoardLocate)
+      for (let i = 0; i < this.PersonalBoard.length; i++) {
+        this.PersonalBoard[i].BoardLocate = i
       }
-      console.log(this.PersonalBoard[0].BoardName+this.PersonalBoard[0].BoardLocate)
+      console.log(this.PersonalBoard[0].BoardName + this.PersonalBoard[0].BoardLocate)
     },
   },
   created() {
     this.$ajax.post('/getUserProjectList').then((res) => {
       this.ProjectList = res.data.data;
-      this.PersonalBoard = res.data.PersonalBoard
-      this.searchResult=res.data.data
+      this.searchResult = res.data.data
+      Bus.$emit('initProjectList',this.ProjectList)
     }).catch(res => {
       console.log(res)
     }),
-   Bus.$on('search',value=>{
-     this.term=value;
-   }) 
+      this.$ajax.post('/getUserPersnoalBoardList').then((res) => {
+        this.PersonalBoard = res.data.data
+        Bus.$emit('initPersonalBoard',this.PersonalBoard)
+      }).catch(res => { console.log(res) }),
+      this.$ajax.post('/getArchiveProjectList').then((res) => {
+        this.ArchiveProjectList = res.data.data
+      }).catch(res => { console.log(res) }),
+        this.$ajax.post('/getArchiveBoardList').then((res) => {
+        this.ArchiveBoardList = res.data.data
+      }).catch(res => { console.log(res) })
+    Bus.$on('search', value => {
+      this.term = value;
+    })
   }
 }
 </script>
@@ -182,6 +217,14 @@ export default {
   margin: 0 auto;
   max-width: 1250px;
   overflow: auto;
+}
+
+.modal-body {
+  color: black;
+}
+
+.modal-content {
+  color: black
 }
 
 .boardList-section {
