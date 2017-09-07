@@ -6,8 +6,8 @@
           <icon name="user"></icon>
           <h6 style="padding-left: 15px">个人看板</h6>
           <b-button-group class="button-group1 mx-3" size="sm">
-            <b-button variant="info" @click="OrderByFlag = 'BoardStartDate'">时间</b-button>
-            <b-button variant="info" @click="OrderByFlag = 'BoardName'">名称</b-button>
+            <b-button variant="info" @click="OrderByFlag = 'boardStartDate'">时间</b-button>
+            <b-button variant="info" @click="OrderByFlag = 'boardName'">名称</b-button>
             <b-button variant="info" @click="OrderByFlag = ''">自定义</b-button>
           </b-button-group>
           <b-button variant="info" size="sm" style="background-color: rgba(255, 255, 255, 0.3)" @click="showCollapse" v-b-toggle.collapse1>
@@ -17,15 +17,15 @@
         <b-collapse id="collapse1" no-body>
           <b-card>
             <div class="card-text">
-              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new">
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new" >
                 <div class="card-text">
                   <span style="font-size: 16px;line-height: 90px">新建面板</span>
                 </div>
               </b-card>
-              <draggable v-model="PersonalBoard" class="card-deck" :move="checkMove" :options="dragOptions" @update="datadragEnd">
-                <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none">
+              <draggable v-model="personalBoard" class="card-deck" :move="checkMove" :options="dragOptions" @update="datadragEnd">
+                <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
-                    <span style="font-size: 16px;line-height: 90px">{{Board.BoardName}}</span>
+                    <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
                   </div>
                 </b-card>
               </draggable>
@@ -38,7 +38,7 @@
       <div class="board_category">
         <b-button-toolbar>
           <icon name="cubes"></icon>
-          <h6 style="padding-left: 15px">{{Project.ProjectName}}</h6>
+          <h6 style="padding-left: 15px">{{Project.projectName}}</h6>
           <b-button-group class="button-group1 mx-3" size="sm">
             <b-button variant="info">项目成员</b-button>
             <b-button variant="info">项目统计</b-button>
@@ -56,10 +56,10 @@
                   <span style="font-size: 16px;line-height: 90px">新建面板</span>
                 </div>
               </b-card>
-              <draggable v-model="Project.BoardList" class="card-deck" :move="checkMove">
-                <b-card v-for="(Board,index) in Project.BoardList" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none">
+              <draggable v-model="Project.boardList" class="card-deck" :move="checkMove">
+                <b-card v-for="(Board,index) in Project.boardList" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
-                    <span style="font-size: 16px;line-height: 90px">{{Board.BoardName}}</span>
+                    <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
                   </div>
                 </b-card>
               </draggable>
@@ -82,8 +82,8 @@
     <b-modal id="modal1" ref="modal1" title="已归档看板" style="color:black" :hide-footer="true">
       <table class="table table-hover" style="font-size:14px;">
         <tbody>
-            <tr v-for="(item,index) in  ArchiveBoardList" :key="index">
-                <td>{{item.BoardName}}</td>
+            <tr v-for="(item,index) in  archiveBoardList" :key="index">
+                <td>{{item.boardName}}</td>
                 <td><a href="#">撤销归档</a>&nbsp;&nbsp;&nbsp;<a href="#" style="color:red">彻底删除</a></td>
             </tr>
         </tbody>
@@ -93,8 +93,8 @@
       <b-modal id="modal2" ref="modal2" title="已归档项目" style="color:black" :hide-footer="true">
       <table class="table table-hover" style="font-size:14px;">
         <tbody>
-            <tr v-for="(item,index) in ArchiveProjectList" :key="index">
-                <td>{{item.ProjectName}}</td>
+            <tr v-for="(item,index) in archiveProjectList" :key="index">
+                <td>{{item.projectName}}</td>
                 <td><a href="#">撤销归档</a>&nbsp;&nbsp;&nbsp;<a href="#" style="color:red">彻底删除</a></td>
             </tr>
         </tbody>
@@ -112,14 +112,14 @@ export default {
   data() {
     return {
       icon: 'chevron-down',
-      OrderByFlag: 'BoardLocate',
+      OrderByFlag: 'boardLocate',
       disabled: true,
-      ProjectList: [],
+      projectList: [],
       searchResult: [],
-      searhcOptions: { keys: ['BoardName'] },
-      PersonalBoard: [],
-      ArchiveProjectList:[],
-      ArchiveBoardList:[],
+      searhcOptions: { keys: ['boardName'] },
+      personalBoard: [],
+      archiveProjectList:[],
+      archiveBoardList:[],
       term: ''
     }
   },
@@ -131,17 +131,17 @@ export default {
     },
     term() {
       if (this.term != '')
-        this.$search(this.term, this.ProjectList, { keys: ["BoardList.BoardName"] }).then(result => {
+        this.$search(this.term, this.projectList, { keys: ["boardList.boardName"] }).then(result => {
           this.searchResult = result
-        }); else this.searchResult = this.ProjectList;
+        }); else this.searchResult = this.projectList;
     }
   },
   computed: {
     SortPersonalBoard() {
       var filterKey = this.term;
-      var data = this.PersonalBoard;
+      var data = this.personalBoard;
       if (filterKey != '') {
-        data = this.PersonalBoard.filter(function(Board) {
+        data = this.personalBoard.filter(function(Board) {
           return Object.keys(Board).some(function(key) {
             return String(Board[key]).toLowerCase().indexOf(filterKey) > -1
           })
@@ -151,10 +151,10 @@ export default {
     },
     SortProjectBoard() {
       if (this.term != '')
-        this.$search(this.term, this.ProjectList, { keys: ["BoardList.BoardName"] }).then(result => {
+        this.$search(this.term, this.projectList, { keys: ["boardList.boardName"] }).then(result => {
           this.searchResult = result
         });
-      return this.ProjectList
+      return this.projectList
     },
     dragOptions() {
       return {
@@ -173,35 +173,40 @@ export default {
     checkMove({ relatedContext, draggedContext }) {
       const draggedElment = draggedContext.element
       const relatedElement = relatedContext.element;
+      console.log("drag"+draggedElment.boardName);
+      console.log("relate"+relatedElement.boardName)
       return true;
     },
     datadragEnd(evt) {
       console.log('拖动前索引:' + evt.oldIndex)
       console.log('拖动后索引:' + evt.newIndex)
-      console.log(this.PersonalBoard[0].BoardName + this.PersonalBoard[0].BoardLocate)
-      for (let i = 0; i < this.PersonalBoard.length; i++) {
-        this.PersonalBoard[i].BoardLocate = i
+      console.log(this.personalBoard[0].boardName + this.personalBoard[0].boardLocate)
+      for (let i = 0; i < this.personalBoard.length; i++) {
+        this.personalBoard[i].boardLocate = i
       }
-      console.log(this.PersonalBoard[0].BoardName + this.PersonalBoard[0].BoardLocate)
+      console.log(this.personalBoard[0].boardName + this.personalBoard[0].boardLocate)
     },
+    router(boardId){
+      this.$router.push({path:'/board/'+boardId})
+    }
   },
   created() {
     this.$ajax.post('/getUserProjectList').then((res) => {
-      this.ProjectList = res.data.data;
+      this.projectList = res.data.data;
       this.searchResult = res.data.data
-      Bus.$emit('initProjectList',this.ProjectList)
+      Bus.$emit('initProjectList',this.projectList)
     }).catch(res => {
       console.log(res)
     }),
       this.$ajax.post('/getUserPersnoalBoardList').then((res) => {
-        this.PersonalBoard = res.data.data
-        Bus.$emit('initPersonalBoard',this.PersonalBoard)
+        this.personalBoard = res.data.data
+        Bus.$emit('initPersonalBoard',this.personalBoard)
       }).catch(res => { console.log(res) }),
       this.$ajax.post('/getArchiveProjectList').then((res) => {
-        this.ArchiveProjectList = res.data.data
+        this.archiveProjectList = res.data.data
       }).catch(res => { console.log(res) }),
         this.$ajax.post('/getArchiveBoardList').then((res) => {
-        this.ArchiveBoardList = res.data.data
+        this.archiveBoardList = res.data.data
       }).catch(res => { console.log(res) })
     Bus.$on('search', value => {
       this.term = value;

@@ -49,7 +49,7 @@
         <img src="../../assets/agzou.jpg" width="32px" height="32px">
         <b-nav-item-dropdown right variant="default" size="sm" :no-caret="no_caret">
           <template slot="button-content">
-            {{UserAccount}}
+            {{userAccount}}
           </template>
           <b-dropdown-item href="#" to="/profile">用户中心</b-dropdown-item>
           <b-dropdown-item href="#">常用快捷操作</b-dropdown-item>
@@ -82,12 +82,12 @@ export default {
     return {
       isSticky: true,
       no_caret: true,
-      UserAccount: '',
+      userAccount: '',
       term:''
     }
   },
   created() {
-    this.$ajax.post('/getUserInfo').then(res => { this.UserAccount = res.data.data.UserAccount}).catch(res=>{console.log(res)})
+    this.$ajax.post('/getUserInfo').then(res => { this.userAccount = res.data.data.userAccount}).catch(res=>{console.log(res)})
   }
 }
 
