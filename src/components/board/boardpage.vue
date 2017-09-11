@@ -25,7 +25,7 @@
         </b-button-toolbar>
       </b-nav>
       <b-nav is-nav-bar class="ml-auto">
-        <b-button-group size="sm" style="height:32px" class="mx-1">
+        <b-button-group size="sm" style="height:32px;">
           <b-btn class="ml-3" variant="default" style="background-color: #0E74AF" @click="right=0">
             <icon name="user" style="padding-top:2px"></icon>成员</b-btn>
           <b-btn class="ml-3" variant="default" style="background-color: #0E74AF" @click="right=0">
@@ -40,24 +40,27 @@
         </div>
       </b-nav>
     </b-navbar>
-    <div class="board_content_main">
-      <b-card-group deck header-class="height:50px">
-        <b-card style="max-width:260px;background-color:#eeeeee" no-body v-for="(item,index) in List" :key="index" class="ml-1">
+    <div class="board_content_main" style="margin-left:20px">
+      <b-card-group deck header-class="height:50px;">
+        <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1``">
           <b-card-header class="list-title">
             {{item.listName}}
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee">
-            <div class="task_view btn btn-default" @mouseover="showEditAndDelete" :style="{'background-color':vbg}" @mouseout="hideEditAndDelete" v-for="(card,index) in item.cardList" :key="index">
-              <div class="edit-and-delete-card" :style="{'background-color':bg,'display':dp}">
+            <div class="task_view btn btn-default" @mouseover.self="showEditAndDelete" style="background-color:white"  @mouseout.self="hideEditAndDelete" v-for="(card,cindex) in item.cardList" :key="cindex">
+              <div class="edit-and-delete-card" style="background-color:white;display:none" @mouseover="onEdit=true" @mouseout="onEdit=false">
                 <icon name="pencil"></icon>
                 <icon name="trash"></icon>
+              </div>
+              <div class="task-top-area">
+                <div class="task hidden"></div>
               </div>
               <div class="task-name-content" style="background-color:#EEEEEE">
               <span class="card-name pull-left">{{card.cardName}}</span>
               </div>
             </div>
           </div>
-          <b-card-footer class="list-footer">
+          <b-card-footer class="list-footer" style="border:none">
             this is footer
           </b-card-footer>
         </b-card>
@@ -72,29 +75,30 @@ export default {
     return {
       boardId: this.$route.params.boardId,
       right: -300,
-      dp:'none',
-      bg:'white',
-      vbg:'#e6e6e6',
+      onEdit:false,
       cardList:[],
       List:[]
     }
   },
   methods:{
-    showEditAndDelete(){
-      this.dp='inherit',
-      this.bg='#EEEEEE',
-      this.vbg='#EEEEEE'
+    showEditAndDelete(event){
+      var target=event.target;
+      target.style.backgroundColor='#EEEEEE'
+      target.children[0].style.display='block'
+      target.children[0].style.backgroundColor='#EEEEEE'
     },
-    hideEditAndDelete(){
-      this.dp='none',
-      this.bg='white',
-      this.vbg='white'
+    hideEditAndDelete(event){
+      var target=event.target;
+      target.style.backgroundColor='white'
+      if(!this.onEdit)
+      target.children[0].style.display='none'
+      target.children[0].style.backgroundColor='white'
     }
   },
   computed:{
     height(){
       return window.innerHeight-150;
-    }
+    },
   },
   created() {
     this.$ajax.post('/getCardList').then(res=>{this.List=res.data.data}).catch(res=>(console.log(res)))
@@ -116,6 +120,7 @@ export default {
   cursor: pointer;
   background-color: #0E74AF;
   color: white;
+
 }
 
 .nav-button:hover {
@@ -164,6 +169,7 @@ export default {
   border-bottom-left-radius: 4px;
 }
 .task_view{
+  position: relative;
   margin: 3px auto;
   width: 96%;
   border:none;
@@ -172,8 +178,8 @@ export default {
 }
 .edit-and-delete-card{
   position: absolute;
-  top:30px;
-  right: 5px;
+  top:0;
+  right: 0;
   font-size: 13px;
   padding: 2px;
 }
@@ -181,11 +187,17 @@ export default {
   line-height: 25px;
   height: 25px;
   padding: 0;
+  text-align: left;
+  border:none;
+}
+.task-top-area{
+  display: flex;
 }
 .list-footer{
   height: 33px;
   line-height: 33px;
   padding: 0;
+  border:none;
 }
 .card-name{
   padding-left:5px; 
