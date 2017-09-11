@@ -40,6 +40,29 @@
         </div>
       </b-nav>
     </b-navbar>
+    <div class="board_content_main">
+      <b-card-group deck header-class="height:50px">
+        <b-card style="max-width:260px;background-color:#eeeeee" no-body v-for="(item,index) in List" :key="index" class="ml-1">
+          <b-card-header class="list-title">
+            {{item.listName}}
+          </b-card-header>
+          <div class="card-text" style="background-color:#eeeeee">
+            <div class="task_view btn btn-default" @mouseover="showEditAndDelete" :style="{'background-color':vbg}" @mouseout="hideEditAndDelete" v-for="(card,index) in item.cardList" :key="index">
+              <div class="edit-and-delete-card" :style="{'background-color':bg,'display':dp}">
+                <icon name="pencil"></icon>
+                <icon name="trash"></icon>
+              </div>
+              <div class="task-name-content" style="background-color:#EEEEEE">
+              <span class="card-name pull-left">{{card.cardName}}</span>
+              </div>
+            </div>
+          </div>
+          <b-card-footer class="list-footer">
+            this is footer
+          </b-card-footer>
+        </b-card>
+      </b-card-group>
+    </div>
   </div>
 </template>
 
@@ -48,7 +71,24 @@ export default {
   data() {
     return {
       boardId: this.$route.params.boardId,
-      right: -300
+      right: -300,
+      dp:'none',
+      bg:'white',
+      vbg:'#e6e6e6',
+      cardList:[],
+      List:[]
+    }
+  },
+  methods:{
+    showEditAndDelete(){
+      this.dp='inherit',
+      this.bg='#EEEEEE',
+      this.vbg='#EEEEEE'
+    },
+    hideEditAndDelete(){
+      this.dp='none',
+      this.bg='white',
+      this.vbg='white'
     }
   },
   computed:{
@@ -57,7 +97,7 @@ export default {
     }
   },
   created() {
-
+    this.$ajax.post('/getCardList').then(res=>{this.List=res.data.data}).catch(res=>(console.log(res)))
   }
 }
 </script>
@@ -105,7 +145,7 @@ export default {
   border: none;
   right: 0px;
   height: 400px;
-  background-color: #edeff0;
+  background-color: #eeeeee;
   box-shadow: -10px -7px 5px -10px #000;
   z-index: 1000;
 }
@@ -118,9 +158,37 @@ export default {
   width: 35px;
   height: 30px;
   cursor: pointer;
-  background: #edeff0;
+  background: #eeeeee;
   box-shadow: -10px -7px 5px -10px #000;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
+}
+.task_view{
+  margin: 3px auto;
+  width: 96%;
+  border:none;
+  text-align: left;
+  box-shadow: 1px 1px 1px 1px #c1c7c3;
+}
+.edit-and-delete-card{
+  position: absolute;
+  top:30px;
+  right: 5px;
+  font-size: 13px;
+  padding: 2px;
+}
+.list-title{
+  line-height: 25px;
+  height: 25px;
+  padding: 0;
+}
+.list-footer{
+  height: 33px;
+  line-height: 33px;
+  padding: 0;
+}
+.card-name{
+  padding-left:5px; 
+  float: left;
 }
 </style>
