@@ -41,24 +41,23 @@
       </b-nav>
     </b-navbar>
     <div class="board_content_main" style="margin-left:20px">
-      <b-card-group deck header-class="height:50px;">
+      <b-card-group deck style="align-items: flex-start">
         <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1``">
           <b-card-header class="list-title">
             {{item.listName}}
           </b-card-header>
-          <div class="card-text" style="background-color:#eeeeee">
-            <div class="task_view btn btn-default" @mouseover.self="showEditAndDelete" style="background-color:white"  @mouseout.self="hideEditAndDelete" v-for="(card,cindex) in item.cardList" :key="cindex">
-              <div class="edit-and-delete-card" style="background-color:white;display:none" @mouseover="onEdit=true" @mouseout="onEdit=false">
-                <icon name="pencil"></icon>
-                <icon name="trash"></icon>
-              </div>
-              <div class="task-top-area">
-                <div class="task hidden"></div>
+          <div class="card-text" style="background-color:#eeeeee;min-height:30px">
+            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove">
+            <div class="task_view btn btn-default"  style="background-color:white;" v-for="(card,cindex) in item.cardList" :key="cindex">
+              <div class="edit-and-delete-card" style="background-color:white;display:block" >
+                <span style="cursor:pointer" ><icon name="pencil"></icon></span>
+                <span style="cursor:pointer" ><icon name="trash"></icon></span>
               </div>
               <div class="task-name-content" style="background-color:#EEEEEE">
               <span class="card-name pull-left">{{card.cardName}}</span>
               </div>
             </div>
+          </draggable>
           </div>
           <b-card-footer class="list-footer" style="border:none">
             this is footer
@@ -70,7 +69,9 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 export default {
+  components:{draggable},
   data() {
     return {
       boardId: this.$route.params.boardId,
@@ -83,16 +84,25 @@ export default {
   methods:{
     showEditAndDelete(event){
       var target=event.target;
+      if(target.style.backgroundColor!='#EEEEEE'){
       target.style.backgroundColor='#EEEEEE'
       target.children[0].style.display='block'
       target.children[0].style.backgroundColor='#EEEEEE'
+      }
     },
     hideEditAndDelete(event){
       var target=event.target;
-      target.style.backgroundColor='white'
-      if(!this.onEdit)
+      if(!this.onEdit){
       target.children[0].style.display='none'
       target.children[0].style.backgroundColor='white'
+      target.style.backgroundColor='white'
+      }
+      else target.children[0].style.display='block'
+    },
+    onMove({relatedContext, draggedContext}){
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      return true
     }
   },
   computed:{
@@ -202,5 +212,9 @@ export default {
 .card-name{
   padding-left:5px; 
   float: left;
+}
+.ghost {
+  opacity: .5;
+  background: #C8EBFB;
 }
 </style>

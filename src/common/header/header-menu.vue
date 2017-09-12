@@ -87,7 +87,7 @@ export default {
     }
   },
   created() {
-    this.$ajax.post('/getUserInfo').then(res => { this.userAccount = res.data.data.userAccount}).catch(res=>{console.log(res)})
+    this.$ajax.post('/Login/getUserInfo').then(res => { this.userAccount = res.data.data.userAccount}).catch(res=>{console.log(res)})
   }
 }
 
