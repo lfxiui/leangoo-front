@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Hello from '@/components/Hello'
 import ProFile from '@/components/user/profile'
 import BoardPage from '@/components/board/boardPage'
+import Project from '../components/project/project'
 
 Vue.use(Router)
 
@@ -21,6 +22,11 @@ export default new Router({
             path: '/board/:boardId',
             name: 'Board',
             component: BoardPage
+        },
+        {
+            path: '/project',
+            name: 'Project',
+            component: Project
         }
     ]
 })

@@ -20,14 +20,6 @@
         </div>
         <div class="user-base-info" v-if="isChangeInfo==='yes'">
           <b-form @submit="onSubmit">
-            <b-form-group id="exampleInputGroup2"
-                          label="姓名:" label-for="userAccount">
-              <b-form-input id="userAccount"
-                            type="text" v-model="form.userAccount" required
-                            placeholder="请输入姓名..."
-                            size="sm"
-              ></b-form-input>
-            </b-form-group>
             <b-form-group id="exampleInputGroup3"
                           label="性别:" label-for="userSex">
               <b-form-select id="userSex"
@@ -61,11 +53,11 @@
     </div>
     <div>
       <b-card v-if="isCardShow==='yes'" class="text-center b-card">
-        <div slot="header">
+        <div slot="header" style="text-align: left;">
           <small style="text-align: left">修改头像</small>
           <span v-on:click="cardHide" style="cursor: pointer"><icon name="times" style="float: right;"></icon></span>
         </div>
-        <b-form-file accept=".jpg, .png, .gif" choose-label="上传图片"></b-form-file>
+        <b-form-file accept=".jpg, .png" choose-label="上传图片"></b-form-file>
       </b-card>
     </div>
     <b-card no-body style="text-align: left;">
@@ -100,10 +92,10 @@
                                   size="sm"
                     ></b-form-input>
                   </b-form-group>
-                  <b-form-group id="newPwd2"
-                                label="确认新密码:" label-for="newPwd2">
-                    <b-form-input id="newPwd2"
-                                  type="password" v-model="form2.newPwd2" required
+                  <b-form-group id="newPwdConfirm"
+                                label="确认新密码:" label-for="newPwdConfirm">
+                    <b-form-input id="newPwdConfirm"
+                                  type="password" v-model="form2.newPwdConfirm" required
                                   placeholder="请输入确认新密码..."
                                   size="sm"
                     ></b-form-input>
@@ -119,8 +111,8 @@
               <h5>登录账号</h5>
               <hr>
             </div>
-            <b-card header="主邮箱" bg-variant="light" class="text-center" style="width: 25%">
-              <p class="card-text">email example:8069@qq.com</p>
+            <b-card header="主邮箱" bg-variant="light" class="text-center" style="width: 40%">
+              <p class="card-text">{{user.userEmail}}</p>
             </b-card>
             <b-button variant="secondary" size="sm" style="margin-top: 30px;margin-left: 5px;">
               添加备用邮箱
@@ -151,10 +143,15 @@
         </b-tab>
         <b-tab title="通讯录">
           <div class="myTab-body">
-            <div class="myTab-title" style="text-align: right">
-              <b-button variant="secondary" size="sm">
+            <div v-if="addFriendShow == 'no'" class="myTab-title" style="text-align: right">
+              <b-button variant="secondary" size="sm" v-on:click="showAddFriend">
                 添加好友
               </b-button>
+              <hr>
+            </div>
+            <div v-if="addFriendShow == 'yes'" style="text-align: right">
+              <b-form-input size="sm" type="text" v-model="addFriendMsg.friendAccount" placeholder="输入账号" style="width: 200px;display: inline"></b-form-input>
+              <b-button variant="success" size="sm" v-on:click="addFriend">添加</b-button>
               <hr>
             </div>
             <div v-for="friend in friends">
@@ -170,7 +167,7 @@
                 </div>
               </div>
               <div style="float: right">
-                <b-button variant="danger" size="sm">
+                <b-button variant="danger" size="sm" v-on:click="deleteFriend(friend.name)">
                   删除
                 </b-button>
               </div>
@@ -208,15 +205,18 @@
       onSubmit(evt) { //表单提交事件在这里
         evt.preventDefault();
         alert(JSON.stringify(this.form));
+
       },
       onPwdSubmit(evt) { //表单提交事件在这里
-        if(this.form2.oldPwd != this.form.userPassword){
+        evt.preventDefault();
+        var form2 = this.form2;
+        if(form2.oldPwd != this.user.userPassword){
+            alert(this.user.userPassword);
             alert("原密码错误，请重新输入!")
-        }else if(this.form2.newPwd != this.form2.newPwd2){
+        }else if(form2.newPwd != form2.newPwdConfirm){
             alert("两次新密码输入不一致，请重新输入!")
         }else {
-          evt.preventDefault();
-          alert(JSON.stringify(this.form2));
+            alert(JSON.stringify(this.form2));
         }
       },
       changeInfo(){
@@ -224,6 +224,16 @@
       },
       notChangeInfo(){
         this.isChangeInfo = 'no';
+      },
+      showAddFriend(){
+          this.addFriendShow = 'yes';
+      },
+      addFriend(){
+          alert(JSON.stringify(this.addFriendMsg));
+      },
+      deleteFriend(friendAccount){
+        this.deleteFriendMsg.friendAccount = friendAccount;
+        alert(JSON.stringify(this.deleteFriendMsg));
       }
     },
     data () {
@@ -233,36 +243,42 @@
         isCardShow: 'no',
         isChangeInfo: 'no',
         changePwdShow: 'no',
+        addFriendShow:'no',
+        addFriendMsg:{friendAccount:''},
+        deleteFriendMsg:{friendAccount:''},
         form: {
-          UserEmail: '',
-          UserAccount: '22222',
-          UserSex: null,
-          UserIntro: ''
+          userEmail: '',
+          userSex: null,
+          userIntro: ''
           //secret: 'S3CR3T'
         },
         form2:{
           oldPwd: '',
           newPwd: '',
-          newPwd2: ''
+          newPwdConfirm: ''
         },
         sex: [
           {text: '选择性别', value: null},
           {text: '男', value: 0},
           {text: '女', value: 1}
         ],
-        friends:[
-          {name:'test01',email:'test01@example.com',avatar:'http://localhost:8080/static/img/SIXTEAM.86e0bd8.png'},
-          {name:'test02',email:'test02@example.com',avatar:'http://localhost:8080/static/img/SIXTEAM.86e0bd8.png'},
-          {name:'test03',email:'test03@example.com',avatar:'http://localhost:8080/static/img/SIXTEAM.86e0bd8.png'}
-        ]
+        friends:[]
       }
     },
     created() {
-      this.$ajax.post('/getUserInfo').then((res) => {
+      this.$ajax.post('/User/getUserInfoById').then((res) => {
+          var form = this.form;
         this.user = res.data.data;
-        this.form = res.data.data;
+        form.userSex = res.data.data.userSex;
+        form.userEmail = res.data.data.userEmail;
+        form.userIntro = res.data.data.userIntro;
       }).catch(res => {
         console.log(res)
+      });
+      this.$ajax.post('/UserFriend/getFriendList').then((res) => {
+          this.friends = res.data.data;
+      }).catch(res => {
+          console.log(res)
       })
     }
   }
@@ -349,10 +365,6 @@
     box-shadow: #666 0px 0px 10px;
   }
 
-  .card-header {
-    text-align: left;
-  }
-
   .custom-file-control::before {
     background-color: #5CB85C;
   }
@@ -370,7 +382,8 @@
     margin-left: 35%;
   }
   .myTab-body{
-    margin-left: 10%;
+    margin-left: 15%;
+    margin-right: 15%;
     padding: 24px;
   }
   .myTab-link{
@@ -409,6 +422,7 @@
     min-height: 40px;
     padding-left: 50px;
     display: inline-block;
+    margin-bottom: -30px;
   }
   .myTab-avatar{
     position: absolute;
