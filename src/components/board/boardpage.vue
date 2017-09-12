@@ -41,29 +41,40 @@
       </b-nav>
     </b-navbar>
     <div class="board_content_main" style="margin-left:20px">
-      <b-card-group deck style="align-items: flex-start">
-        <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1``">
+      <draggable v-model="List" :options="{'ghostClass':'ghost','animation':0,'group':'dragList','handle':'.list-title'}" style="align-items: flex-start" class="card-deck">
+        <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1">
           <b-card-header class="list-title">
             {{item.listName}}
           </b-card-header>
-          <div class="card-text" style="background-color:#eeeeee;min-height:30px">
-            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove">
-            <div class="task_view btn btn-default"  style="background-color:white;" v-for="(card,cindex) in item.cardList" :key="cindex">
-              <div class="edit-and-delete-card" style="background-color:white;display:block" >
-                <span style="cursor:pointer" ><icon name="pencil"></icon></span>
-                <span style="cursor:pointer" ><icon name="trash"></icon></span>
+          <div class="card-text" style="background-color:#eeeeee;">
+            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px">
+              <div class="task_view btn btn-default" style="background-color:white;min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex">
+                <div class="edit-and-delete-card" style="background-color:white;display:block">
+                  <span style="cursor:pointer">
+                    <icon name="pencil"></icon>
+                  </span>
+                  <span style="cursor:pointer">
+                    <icon name="trash"></icon>
+                  </span>
+                </div>
+                <div class="task-name-content" style="background-color:#EEEEEE">
+                  <span class="card-name pull-left">{{card.cardName}}</span>
+                </div>
               </div>
-              <div class="task-name-content" style="background-color:#EEEEEE">
-              <span class="card-name pull-left">{{card.cardName}}</span>
-              </div>
-            </div>
-          </draggable>
+            </draggable>
           </div>
           <b-card-footer class="list-footer" style="border:none">
             this is footer
           </b-card-footer>
         </b-card>
-      </b-card-group>
+      </draggable>
+      <div>
+        <ul>
+          <li v-for="(item,index) in List" :key="index">
+            {{item.cardList.length}}
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -71,47 +82,51 @@
 <script>
 import draggable from 'vuedraggable'
 export default {
-  components:{draggable},
+  components: { draggable },
   data() {
     return {
       boardId: this.$route.params.boardId,
       right: -300,
-      onEdit:false,
-      cardList:[],
-      List:[]
+      onEdit: false,
+      cardList: [],
+      List: []
     }
   },
-  methods:{
-    showEditAndDelete(event){
-      var target=event.target;
-      if(target.style.backgroundColor!='#EEEEEE'){
-      target.style.backgroundColor='#EEEEEE'
-      target.children[0].style.display='block'
-      target.children[0].style.backgroundColor='#EEEEEE'
+  methods: {
+    showEditAndDelete(event) {
+      var target = event.target;
+      if (target.style.backgroundColor != '#EEEEEE') {
+        target.style.backgroundColor = '#EEEEEE'
+        target.children[0].style.display = 'block'
+        target.children[0].style.backgroundColor = '#EEEEEE'
       }
     },
-    hideEditAndDelete(event){
-      var target=event.target;
-      if(!this.onEdit){
-      target.children[0].style.display='none'
-      target.children[0].style.backgroundColor='white'
-      target.style.backgroundColor='white'
+    hideEditAndDelete(event) {
+      var target = event.target;
+      if (!this.onEdit) {
+        target.children[0].style.display = 'none'
+        target.children[0].style.backgroundColor = 'white'
+        target.style.backgroundColor = 'white'
       }
-      else target.children[0].style.display='block'
+      else target.children[0].style.display = 'block'
     },
-    onMove({relatedContext, draggedContext}){
+    onMove({ relatedContext, draggedContext }) {
       const relatedElement = relatedContext.element;
       const draggedElement = draggedContext.element;
       return true
-    }
+    },
+    datadragEnd(evt) {
+      console.log('拖动前索引:' + evt.oldIndex)
+      console.log('拖动后索引:' + evt.newIndex)
+    },
   },
-  computed:{
-    height(){
-      return window.innerHeight-150;
+  computed: {
+    height() {
+      return window.innerHeight - 150;
     },
   },
   created() {
-    this.$ajax.post('/getCardList').then(res=>{this.List=res.data.data}).catch(res=>(console.log(res)))
+    this.$ajax.post('/getCardList').then(res => { this.List = res.data.data }).catch(res => (console.log(res)))
   }
 }
 </script>
@@ -130,7 +145,6 @@ export default {
   cursor: pointer;
   background-color: #0E74AF;
   color: white;
-
 }
 
 .nav-button:hover {
@@ -178,41 +192,48 @@ export default {
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }
-.task_view{
+
+.task_view {
   position: relative;
   margin: 3px auto;
   width: 96%;
-  border:none;
+  border: none;
   text-align: left;
   box-shadow: 1px 1px 1px 1px #c1c7c3;
 }
-.edit-and-delete-card{
+
+.edit-and-delete-card {
   position: absolute;
-  top:0;
+  top: 0;
   right: 0;
   font-size: 13px;
   padding: 2px;
 }
-.list-title{
+
+.list-title {
   line-height: 25px;
   height: 25px;
   padding: 0;
   text-align: left;
-  border:none;
+  border: none;
 }
-.task-top-area{
+
+.task-top-area {
   display: flex;
 }
-.list-footer{
+
+.list-footer {
   height: 33px;
   line-height: 33px;
   padding: 0;
-  border:none;
+  border: none;
 }
-.card-name{
-  padding-left:5px; 
+
+.card-name {
+  padding-left: 5px;
   float: left;
 }
+
 .ghost {
   opacity: .5;
   background: #C8EBFB;
