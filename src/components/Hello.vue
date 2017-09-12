@@ -191,21 +191,21 @@ export default {
     }
   },
   created() {
-    this.$ajax.post('/getUserProjectList').then((res) => {
+    this.$ajax.post('/Project/getUserProjectList').then((res) => {
       this.projectList = res.data.data;
       this.searchResult = res.data.data
       Bus.$emit('initProjectList',this.projectList)
     }).catch(res => {
       console.log(res)
     }),
-      this.$ajax.post('/getUserPersnoalBoardList').then((res) => {
+      this.$ajax.post('/Board/getUserPersnoalBoardList').then((res) => {
         this.personalBoard = res.data.data
         Bus.$emit('initPersonalBoard',this.personalBoard)
       }).catch(res => { console.log(res) }),
-      this.$ajax.post('/getArchiveProjectList').then((res) => {
+      this.$ajax.post('/Archive/getArchiveProjectList').then((res) => {
         this.archiveProjectList = res.data.data
       }).catch(res => { console.log(res) }),
-        this.$ajax.post('/getArchiveBoardList').then((res) => {
+        this.$ajax.post('/Archive/getArchiveBoardList').then((res) => {
         this.archiveBoardList = res.data.data
       }).catch(res => { console.log(res) })
     Bus.$on('search', value => {
