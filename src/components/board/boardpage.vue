@@ -40,14 +40,15 @@
         </div>
       </b-nav>
     </b-navbar>
-    <div class="board_content_main" style="margin-left:20px">
+    <div class="board_content_main" style="margin-left:20px;font-size:14px">
       <draggable v-model="List" :options="{'ghostClass':'ghost','animation':0,'group':'dragList','handle':'.list-title'}" style="align-items: flex-start" class="card-deck">
         <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1">
           <b-card-header class="list-title">
             {{item.listName}}
+            <b-badge variant="success">{{item.cardList.length}}</b-badge>
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee;">
-            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px">
+            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px;max-height:300px;overflow:auto">
               <div class="task_view btn btn-default" style="background-color:white;min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex">
                 <div class="edit-and-delete-card" style="background-color:white;display:block">
                   <span style="cursor:pointer">
@@ -63,8 +64,13 @@
               </div>
             </draggable>
           </div>
-          <b-card-footer class="list-footer" style="border:none">
-            this is footer
+          <b-card-footer class="list-footer" style="border:none;height:auto">
+            <b-btn size="sm" variant="link" class="add-card-button float-left" style="display:block" @click="addCard($event)">添加卡片</b-btn>
+            <div style="display:none">
+              <b-form-textarea :rows="2" :max-rows="2" style="margin:3px auto;width:98%"></b-form-textarea>
+              <b-btn class="float-left" size="sm" variant="success" @click="saveCard($event)" style="cursor:pointer">保存</b-btn>
+              <b-btn class="float-left ml-1" size="sm" variant="default" @click="cancelSave($event)" style="cursor:pointer">取消</b-btn>
+            </div>
           </b-card-footer>
         </b-card>
       </draggable>
@@ -93,6 +99,16 @@ export default {
     }
   },
   methods: {
+    addCard(event){
+      event.target.nextElementSibling.style.display='block'
+      event.target.style.display='none'
+    },
+    cancelSave(event){
+      event.target.parentNode.style.display='none'
+      event.target.parentNode.previousElementSibling.style.display='block'
+      
+      
+    },
     showEditAndDelete(event) {
       var target = event.target;
       if (target.style.backgroundColor != '#EEEEEE') {
@@ -196,6 +212,7 @@ export default {
 .task_view {
   position: relative;
   margin: 3px auto;
+  font-size: 14px;
   width: 96%;
   border: none;
   text-align: left;
@@ -232,6 +249,11 @@ export default {
 .card-name {
   padding-left: 5px;
   float: left;
+}
+
+.add-card-button {
+  color: #b5b5b9;
+  cursor: pointer;
 }
 
 .ghost {
