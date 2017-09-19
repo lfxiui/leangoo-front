@@ -69,7 +69,7 @@
             </b-dd>
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee;">
-            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px;max-height:300px;overflow:auto">
+            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px;max-height:300px;overflow:auto" @end="dragEnd">
               <div class="task_view btn btn-default" style="min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex" @mouseover.self="showEditAndDelete($event)" @mouseout.self="hideEditAndDelete($event)">
                 <div class="edit-and-delete-card" style="display:block" @mouseover.self="showEditDiv">
                   <span style="cursor:pointer">
@@ -167,6 +167,9 @@ export default {
       const draggedElement = draggedContext.element;
       return true
     },
+    dragEnd(event){
+      console.log(event);
+    },
     datadragEnd(evt) {
       console.log('拖动前索引:' + evt.oldIndex)
       console.log('拖动后索引:' + evt.newIndex)
@@ -176,14 +179,19 @@ export default {
     height() {
       return window.innerHeight - 150;
     },
-
   },
-  watcht: {
+  watch: {
     boardId() {
       this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
-        console.log(result)
         this.boardName = result.data.data.boardName;
       }).catch(res => { console.log(res) })
+    },
+    List(){
+      for(var index in this.List){
+        this.List[index].listLocate=index;
+        for(var cindex in this.List[index].cardList)
+         this.List[index].cardList[cindex].cardLocate=cindex;
+      }
     }
   },
   created() {
@@ -192,7 +200,6 @@ export default {
       return this.ownerDocument.defaultView.getComputedStyle(this, null);
     });
     this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
-      console.log(result)
       this.boardName = result.data.data.boardName;
     }).catch(res => { console.log(res) })
   },
