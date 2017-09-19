@@ -57,7 +57,9 @@
           <small style="text-align: left">修改头像</small>
           <span v-on:click="cardHide" style="cursor: pointer"><icon name="times" style="float: right;"></icon></span>
         </div>
-        <b-form-file accept=".jpg, .png" choose-label="上传图片"></b-form-file>
+        <b-form-file accept=".jpg, .png" choose-label="上传图片" @change="changeImage($event)"></b-form-file>
+        <hr>
+        <b-button variant="success" size="sm"><icon name="check"></icon>保存头像</b-button>
       </b-card>
     </div>
     <b-card no-body style="text-align: left;">
@@ -234,6 +236,18 @@
       deleteFriend(friendAccount){
         this.deleteFriendMsg.friendAccount = friendAccount;
         alert(JSON.stringify(this.deleteFriendMsg));
+      },
+      /*setAvatar() {
+        this.$refs.avatarInput.click()
+      },*/
+      changeImage(e) {
+        var file = e.target.files[0]
+        var reader = new FileReader()
+        var that = this
+        reader.readAsDataURL(file)
+        reader.onload = function(e) {
+          that.user.userAvatar = this.result
+        }
       }
     },
     data () {
@@ -279,7 +293,7 @@
           this.friends = res.data.data;
       }).catch(res => {
           console.log(res)
-      })
+      });
     }
   }
 </script>
@@ -366,7 +380,7 @@
   }
 
   .custom-file-control::before {
-    background-color: #5CB85C;
+    background-color: #28A745;
   }
 
   .custom-file-control[data-v-c68bd5f8]::after {
