@@ -1,7 +1,7 @@
 <template>
   <div class="board_content">
     <b-navbar toggleable="md" type="dark" style="background-color:rgb(14,116,175);">
-      <b-navbar-brand href="#">{{boardId}}</b-navbar-brand>
+      <b-navbar-brand href="#">{{boardName}}</b-navbar-brand>
       <b-nav is-nav-bar>
         <b-button-toolbar>
           <b-button-group class="mx-1" size="sm">
@@ -9,7 +9,17 @@
               <template slot="button-content">
                 8月31日 - 9月13日
               </template>
-              This is dropdown
+              <b-card style="width:250px;border:none" no-body>
+                <b-card-header style="font-size:14px;padding:10px,15px">
+                  设置看板周期
+                </b-card-header>
+                <b-card-body>
+                  <span class="time-zone">时区 GMT +8:00</span>
+                </b-card-body>
+                <b-card-footer>
+                  This is footer
+                </b-card-footer>
+              </b-card>
             </b-dropdown>
           </b-button-group>
           <b-button-group class="mx-1" size="sm" style="height:32px">
@@ -21,6 +31,9 @@
             </b-btn>
             <b-btn variant="default" class="nav-button">
               <icon name="group" style="padding-top:2px"></icon>项目成员可见</b-btn>
+            <b-btn variant="default" class="nav-button">
+              <icon name="plus" style="padding-top:2px"></icon>新建列表
+            </b-btn>
           </b-button-group>
         </b-button-toolbar>
       </b-nav>
@@ -46,15 +59,23 @@
           <b-card-header class="list-title">
             {{item.listName}}
             <b-badge variant="success">{{item.cardList.length}}</b-badge>
+            <b-dd size="sm" variant="default" class="float-right list-title-menu" style="background-color:#e7e7e7">
+              <template slot="button-content">
+                <icon name="bars"></icon>
+              </template>
+              <b-dropdown-item>复制列表</b-dropdown-item>
+              <b-dropdown-item>创建引用</b-dropdown-item>
+              <b-dropdown-item @click="delList(index)">删除列表</b-dropdown-item>
+            </b-dd>
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee;">
             <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px;max-height:300px;overflow:auto">
-              <div class="task_view btn btn-default" style="background-color:white;min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex">
-                <div class="edit-and-delete-card" style="background-color:white;display:block">
+              <div class="task_view btn btn-default" style="min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex" @mouseover.self="showEditAndDelete($event)" @mouseout.self="hideEditAndDelete($event)">
+                <div class="edit-and-delete-card" style="display:block" @mouseover.self="showEditDiv">
                   <span style="cursor:pointer">
                     <icon name="pencil"></icon>
                   </span>
-                  <span style="cursor:pointer">
+                  <span style="cursor:pointer" @click.stop="delCard(index,cindex)">
                     <icon name="trash"></icon>
                   </span>
                 </div>
@@ -65,10 +86,10 @@
             </draggable>
           </div>
           <b-card-footer class="list-footer" style="border:none;height:auto">
-            <b-btn size="sm" variant="link" class="add-card-button float-left" style="display:block" @click="addCard($event)">添加卡片</b-btn>
+            <b-btn size="sm" variant="link" class="add-card-button float-left" style="display:block" @click="addCard($event,index)">添加卡片</b-btn>
             <div style="display:none">
-              <b-form-textarea :rows="2" :max-rows="2" style="margin:3px auto;width:98%"></b-form-textarea>
-              <b-btn class="float-left" size="sm" variant="success" @click="saveCard($event)" style="cursor:pointer">保存</b-btn>
+              <b-form-textarea :rows="2" :max-rows="2" style="margin:3px auto;width:98%" v-model="nCardName"></b-form-textarea>
+              <b-btn class="float-left" size="sm" variant="success" @click="saveCard($event,index)" style="cursor:pointer">保存</b-btn>
               <b-btn class="float-left ml-1" size="sm" variant="default" @click="cancelSave($event)" style="cursor:pointer">取消</b-btn>
             </div>
           </b-card-footer>
@@ -88,43 +109,58 @@
 <script>
 import draggable from 'vuedraggable'
 export default {
-  components: { draggable },
+  components: { draggable},
   data() {
     return {
       boardId: this.$route.params.boardId,
+      boardName: '',
       right: -300,
+      addCardIsOpen: false,
+      nCardName: '',
       onEdit: false,
       cardList: [],
-      List: []
+      List: [],
     }
   },
   methods: {
-    addCard(event){
-      event.target.nextElementSibling.style.display='block'
-      event.target.style.display='none'
+    delList(index){this.List.splice(index,1)},
+    delCard(index, cindex) {
+      console.log(this.List[index].cardList)
+      this.List[index].cardList.splice(cindex, 1)
+      console.log(this.List[index].cardList.length)
     },
-    cancelSave(event){
-      event.target.parentNode.style.display='none'
-      event.target.parentNode.previousElementSibling.style.display='block'
-      
-      
+    addCard(event) {
+      if (!this.addCardIsOpen) {
+        event.target.nextElementSibling.style.display = 'block'
+        event.target.style.display = 'none'
+        this.addCardIsOpen = true
+      }
+    },
+    saveCard(event, index) {
+      this.List[index].cardList.push({ 'cardId': '1', 'cardName': this.nCardName, 'cardIntro': '', 'cardEndDate': '', 'cardStartDate': '', 'cardLocate': this.List[index].cardList.length })
+      this.nCardName = '';
+
+    },
+    cancelSave(event) {
+      event.target.parentNode.style.display = 'none'
+      event.target.parentNode.previousElementSibling.style.display = 'block'
+      this.addCardIsOpen = false;
     },
     showEditAndDelete(event) {
       var target = event.target;
       if (target.style.backgroundColor != '#EEEEEE') {
-        target.style.backgroundColor = '#EEEEEE'
-        target.children[0].style.display = 'block'
-        target.children[0].style.backgroundColor = '#EEEEEE'
+        target.children[0].style.backgroundColor = '#EEEEEE';
+        target.children[0].style.color = 'black'
       }
+    },
+    showEditDiv(event) {
+      event.target.style.backgroundColor = '#EEEEEE';
+      event.target.style.color = 'black'
     },
     hideEditAndDelete(event) {
       var target = event.target;
-      if (!this.onEdit) {
-        target.children[0].style.display = 'none'
-        target.children[0].style.backgroundColor = 'white'
-        target.style.backgroundColor = 'white'
-      }
-      else target.children[0].style.display = 'block'
+      target.children[0].style = ""
+
     },
     onMove({ relatedContext, draggedContext }) {
       const relatedElement = relatedContext.element;
@@ -140,10 +176,26 @@ export default {
     height() {
       return window.innerHeight - 150;
     },
+
+  },
+  watcht: {
+    boardId() {
+      this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
+        console.log(result)
+        this.boardName = result.data.data.boardName;
+      }).catch(res => { console.log(res) })
+    }
   },
   created() {
-    this.$ajax.post('/getCardList').then(res => { this.List = res.data.data }).catch(res => (console.log(res)))
-  }
+    this.$ajax.post('/Card/getCardList').then(res => { this.List = res.data.data }).catch(res => (console.log(res)));
+    HTMLElement.prototype.__defineGetter__("currentStyle", function() {
+      return this.ownerDocument.defaultView.getComputedStyle(this, null);
+    });
+    this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
+      console.log(result)
+      this.boardName = result.data.data.boardName;
+    }).catch(res => { console.log(res) })
+  },
 }
 </script>
 
@@ -182,6 +234,10 @@ export default {
   color: white;
 }
 
+.nav-button-drown button::after {
+  content: none;
+}
+
 .slider-menu {
   transition: right .2s;
   position: absolute;
@@ -211,6 +267,7 @@ export default {
 
 .task_view {
   position: relative;
+  background-color: white;
   margin: 3px auto;
   font-size: 14px;
   width: 96%;
@@ -219,13 +276,20 @@ export default {
   box-shadow: 1px 1px 1px 1px #c1c7c3;
 }
 
+.task_view:hover {
+  background-color: #EEEEEE
+}
+
 .edit-and-delete-card {
   position: absolute;
+  background-color: white;
+  color: white;
   top: 0;
   right: 0;
   font-size: 13px;
   padding: 2px;
 }
+
 
 .list-title {
   line-height: 25px;
@@ -233,6 +297,15 @@ export default {
   padding: 0;
   text-align: left;
   border: none;
+}
+
+.list-title-menu button {
+  background-color: #e7e7e7;
+  cursor: pointer;
+}
+
+.list-title-menu ::after {
+  content: none;
 }
 
 .task-top-area {
@@ -255,7 +328,13 @@ export default {
   color: #b5b5b9;
   cursor: pointer;
 }
-
+.time-zone{
+  margin-bottom: 10px;
+  display: block;
+  margin-top: -5px;
+  font-size: 12px;
+  color:gray
+}
 .ghost {
   opacity: .5;
   background: #C8EBFB;
