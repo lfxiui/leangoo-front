@@ -7,7 +7,7 @@
           <b-button-group class="mx-1" size="sm">
             <b-dropdown class="nav-button-drown" variant="default" size="sm">
               <template slot="button-content">
-                8月31日 - 9月13日
+               {{startDate}}-{{endDate}}
               </template>
               <b-card style="width:250px;border:none" no-body>
                 <b-card-header style="font-size:14px;padding:10px,15px">
@@ -15,6 +15,8 @@
                 </b-card-header>
                 <b-card-body>
                   <span class="time-zone">时区 GMT +8:00</span>
+                  <el-date-picker type="date" placeholder="开始日期" v-model="startDate" size="small"></el-date-picker>
+                  <el-date-picker type="date" placeholder="结束日期"  v-model="endDate" size="small" style="margin-top:10px"></el-date-picker>
                 </b-card-body>
                 <b-card-footer>
                   This is footer
@@ -109,7 +111,7 @@
 <script>
 import draggable from 'vuedraggable'
 export default {
-  components: { draggable},
+  components: { draggable },
   data() {
     return {
       boardId: this.$route.params.boardId,
@@ -120,10 +122,12 @@ export default {
       onEdit: false,
       cardList: [],
       List: [],
+      startDate:'',
+      endDate:''
     }
   },
   methods: {
-    delList(index){this.List.splice(index,1)},
+    delList(index) { this.List.splice(index, 1) },
     delCard(index, cindex) {
       console.log(this.List[index].cardList)
       this.List[index].cardList.splice(cindex, 1)
@@ -167,7 +171,7 @@ export default {
       const draggedElement = draggedContext.element;
       return true
     },
-    dragEnd(event){
+    dragEnd(event) {
       console.log(event);
     },
     datadragEnd(evt) {
@@ -186,11 +190,11 @@ export default {
         this.boardName = result.data.data.boardName;
       }).catch(res => { console.log(res) })
     },
-    List(){
-      for(var index in this.List){
-        this.List[index].listLocate=index;
-        for(var cindex in this.List[index].cardList)
-         this.List[index].cardList[cindex].cardLocate=cindex;
+    List() {
+      for (var index in this.List) {
+        this.List[index].listLocate = index;
+        for (var cindex in this.List[index].cardList)
+          this.List[index].cardList[cindex].cardLocate = cindex;
       }
     }
   },
@@ -335,13 +339,15 @@ export default {
   color: #b5b5b9;
   cursor: pointer;
 }
-.time-zone{
+
+.time-zone {
   margin-bottom: 10px;
   display: block;
   margin-top: -5px;
   font-size: 12px;
-  color:gray
+  color: gray
 }
+
 .ghost {
   opacity: .5;
   background: #C8EBFB;
