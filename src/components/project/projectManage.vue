@@ -139,7 +139,22 @@
       },
       onSubmit(evt) { //表单提交事件在这里
         evt.preventDefault();
-        alert(JSON.stringify(this.form));
+        this.$ajax({
+          method:"POST",
+          url:'/Project/changeProjectInfo',
+          data:JSON.stringify(this.form),
+        }).then((res) => {
+          if(res.data.errcode === 0){
+            this.project = res.data.data;
+            this.form = res.data.data;
+            alert(res.data.info);
+            this.notChangeInfo();
+          }else{
+            alert(res.data.info);
+          }
+        }).catch(res => {
+          console.log(res)
+        });
       },
       boardClick(boardId){
         alert(boardId);
@@ -148,16 +163,54 @@
         this.addLeaguerShow = 'yes';
       },
       addLeaguer(){
-        alert(JSON.stringify(this.addLeaguerMsg));
+        this.$ajax({
+          method:"POST",
+          url:'/Project/addProjectLeaguer',
+          data:JSON.stringify(this.addLeaguerMsg),
+        }).then((res) => {
+          if(res.data.errcode === 0){
+            this.leaguers = res.data.data;
+            alert(res.data.info);
+          }else{
+            alert(res.data.info);
+          }
+        }).catch(res => {
+          console.log(res)
+        });
       },
       deleteLeaguer(userAccount){
         this.deleteLeaguerMsg.leaguerAccount = userAccount;
-        alert(JSON.stringify(this.deleteLeaguerMsg));
+        this.$ajax({
+          method:"POST",
+          url:'/Project/deleteProjectLeaguer',
+          data:JSON.stringify(this.deleteLeaguerMsg),
+        }).then((res) => {
+          if(res.data.errcode === 0){
+            this.leaguers = res.data.data;
+            alert(res.data.info);
+          }else{
+            alert(res.data.info);
+          }
+        }).catch(res => {
+          console.log(res)
+        });
       },
       projectArchive(projectId){
           var data = {};
           data['projectId'] = projectId;
-          alert(JSON.stringify(data));
+        this.$ajax({
+          method:"POST",
+          url:'/Project/archiveProject',
+          data:JSON.stringify(this.data),
+        }).then((res) => {
+          if(res.data.errcode === 0){
+            alert(res.data.info);
+          }else{
+            alert(res.data.info);
+          }
+        }).catch(res => {
+          console.log(res)
+        });
       },
       updateRole(userAccount,roleId){
           var data = {};
@@ -170,8 +223,11 @@
             url:'/Role/changeLeaguerRole',
             data:JSON.stringify(data),
           }).then((res) => {
-            this.leaguers = res.data.data;
-            alert(res.data.info);
+            if (res.data.errcode === 0) {
+              this.leaguers = res.data.data;
+              alert(res.data.info);
+            } else {
+            }
           }).catch(res => {
             console.log(res)
           });
