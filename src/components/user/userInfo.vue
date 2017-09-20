@@ -57,9 +57,9 @@
           <small style="text-align: left">修改头像</small>
           <span v-on:click="cardHide" style="cursor: pointer"><icon name="times" style="float: right;"></icon></span>
         </div>
-        <b-form-file accept=".jpg, .png" choose-label="上传图片" @change="changeImage($event)"></b-form-file>
+        <b-form-file accept=".jpg, .png" choose-label="上传图片" @change="changeImage($event)" v-model="avatarInput"></b-form-file>
         <hr>
-        <b-button variant="success" size="sm"><icon name="check"></icon>保存头像</b-button>
+        <b-button variant="success" size="sm" v-on:click="editAvatar()"><icon name="check"></icon>保存头像</b-button>
       </b-card>
     </div>
     <b-card no-body style="text-align: left;">
@@ -206,8 +206,25 @@
       },
       onSubmit(evt) { //表单提交事件在这里
         evt.preventDefault();
-        alert(JSON.stringify(this.form));
-
+        var form = this.form;
+        this.$ajax({
+          method:"POST",
+          url:'/User/changeUserInfo',
+          data:JSON.stringify(form),
+        }).then((res) => {
+          if(res.data.errcode === 0){
+            this.user = res.data.data;
+            form.userSex = res.data.data.userSex;
+            form.userEmail = res.data.data.userEmail;
+            form.userIntro = res.data.data.userIntro;
+            alert(res.data.info);
+            this.notChangeInfo();
+          }else{
+            alert(res.data.info);
+          }
+        }).catch(res => {
+          console.log(res)
+        });
       },
       onPwdSubmit(evt) { //表单提交事件在这里
         evt.preventDefault();
@@ -218,7 +235,22 @@
         }else if(form2.newPwd != form2.newPwdConfirm){
             alert("两次新密码输入不一致，请重新输入!")
         }else {
-            alert(JSON.stringify(this.form2));
+          this.$ajax({
+            method:"POST",
+            url:'/User/changeUserPassword',
+            data:JSON.stringify(this.form2),
+          }).then((res) => {
+            if(res.data.errcode === 0){
+              this.user.userPassword = res.data.data.userPassword;
+              alert(res.data.info);
+              this.form2={oldPwd: '', newPwd: '', newPwdConfirm: ''};
+              this.changePwdHide();
+            }else{
+              alert(res.data.info);
+            }
+          }).catch(res => {
+            console.log(res)
+          });
         }
       },
       changeInfo(){
@@ -231,15 +263,61 @@
           this.addFriendShow = 'yes';
       },
       addFriend(){
-          alert(JSON.stringify(this.addFriendMsg));
+        this.$ajax({
+          method:"POST",
+          url:'/UserFriend/addFriend',
+          data:JSON.stringify(this.addFriendMsg),
+        }).then((res) => {
+          if(res.data.errcode === 0){
+            this.friends = res.data.data;
+            alert(res.data.info);
+          }else{
+            alert(res.data.info);
+          }
+        }).catch(res => {
+          console.log(res)
+        });
       },
       deleteFriend(friendAccount){
         this.deleteFriendMsg.friendAccount = friendAccount;
-        alert(JSON.stringify(this.deleteFriendMsg));
+        this.$ajax({
+          method:"POST",
+          url:'/UserFriend/deleteFriend',
+          data:JSON.stringify(this.deleteFriendMsg),
+        }).then((res) => {
+          if(res.data.errcode === 0){
+            this.friends = res.data.data;
+            alert(res.data.info);
+          }else{
+            alert(res.data.info);
+          }
+        }).catch(res => {
+          console.log(res)
+        });
       },
-      /*setAvatar() {
-        this.$refs.avatarInput.click()
-      },*/
+      editAvatar() {
+        // 修改了头像
+        if (this.avatarInput !== null) {
+          var image = new FormData();
+          image.append('userAvatar', this.avatarInput);
+          this.$ajax.post('/User/changeAvatar', image, {
+            headers: {
+              "Content-Type": "multipart/form-data"
+            }
+          }).then((res) => {
+            if (res.data.errcode === 0) {
+              this.user.userAvatar = res.data.data.userAvatar;
+              alert(res.data.info);
+              this.avatarInput = null;
+              this.cardHide();
+            } else {
+              alert(res.data.info)
+            }
+          }).catch(res => {
+            console.log(res)
+          });
+        }
+        },
       changeImage(e) {
         var file = e.target.files[0]
         var reader = new FileReader()
@@ -253,6 +331,7 @@
     data () {
       return {
         user:{},
+        avatarInput:null,
         isShow: false,
         isCardShow: 'no',
         isChangeInfo: 'no',
@@ -369,8 +448,8 @@
 
   .b-card {
     width: 350px;
-    top: 31%;
-    left: 308px;
+    top: 26%;
+    left: 345px;
     position: fixed;
     z-index: 2000;
     right: 20px;
