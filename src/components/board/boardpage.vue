@@ -5,9 +5,9 @@
       <b-nav is-nav-bar>
         <b-button-toolbar>
           <b-button-group class="mx-1" size="sm">
-            <b-dropdown class="nav-button-drown" variant="default" size="sm">
+            <b-dropdown class="nav-button-drown" variant="default" size="sm" :popper-opts="{'dataObject':{'data.hide':showData}}">
               <template slot="button-content">
-               {{startDate}}-{{endDate}}
+               {{startDate | formatDate}}-{{endDate | formatDate}}
               </template>
               <b-card style="width:250px;border:none" no-body>
                 <b-card-header style="font-size:14px;padding:10px,15px">
@@ -19,7 +19,8 @@
                   <el-date-picker type="date" placeholder="结束日期"  v-model="endDate" size="small" style="margin-top:10px"></el-date-picker>
                 </b-card-body>
                 <b-card-footer>
-                  This is footer
+                    <b-btn variant="success" size="sm"  style="cursor:pointer">保存</b-btn>
+                    <b-btn variant="default" size="sm"  style="cursor:pointer" @click="cancelDate($event)">取消</b-btn>
                 </b-card-footer>
               </b-card>
             </b-dropdown>
@@ -110,6 +111,7 @@
 
 <script>
 import draggable from 'vuedraggable'
+import {formatDate} from '../../common/formatDate'
 export default {
   components: { draggable },
   data() {
@@ -123,10 +125,15 @@ export default {
       cardList: [],
       List: [],
       startDate:'',
-      endDate:''
+      endDate:'',
+      showData:true,
+
     }
   },
   methods: {
+    cancelDate(event){
+      this.showData=false;
+    },
     delList(index) { this.List.splice(index, 1) },
     delCard(index, cindex) {
       console.log(this.List[index].cardList)
@@ -205,8 +212,16 @@ export default {
     });
     this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
       this.boardName = result.data.data.boardName;
+      this.startDate=result.data.data.boardStartDate;
+      this.endDate=result.data.data.boardEndDate;
     }).catch(res => { console.log(res) })
   },
+  filters:{
+    formatDate(time){
+      var date=new Date(time);
+      return formatDate(date,'MM-dd');
+    }
+  }
 }
 </script>
 
@@ -231,7 +246,7 @@ export default {
   color: white;
 }
 
-.nav-button-drown button {
+.nav-button-drown>button:first-child {
   -webkit-transition-duration: 0.4s;
   /* Safari */
   transition-duration: 0.4s;
@@ -240,12 +255,12 @@ export default {
   color: white;
 }
 
-.nav-button-drown button:hover {
+.nav-button-drown>button:first-child:hover {
   background-color: rgba(255, 255, 255, 0.3);
   color: white;
 }
 
-.nav-button-drown button::after {
+.nav-button-drown>button:first-child::after {
   content: none;
 }
 
