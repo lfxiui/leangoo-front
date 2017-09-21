@@ -12,12 +12,15 @@ import axios from 'axios'
 import VueFuse from 'vue-fuse'
 import Vue2Filters from 'vue2-filters'
 import lodash from 'lodash'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-default/index.css'
 
 Vue.config.productionTip = false;
 router.mode = "history"
 Vue.use(BootstrapVue)
 Vue.use(VueFuse)
 Vue.use(Vue2Filters)
+Vue.use(ElementUI)
 Vue.component('icon', Icon)
 axios.defaults.baseURL = '/api'
 Vue.prototype.$ajax = axios
