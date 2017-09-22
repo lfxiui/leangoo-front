@@ -139,11 +139,10 @@
       },
       onSubmit(evt) { //表单提交事件在这里
         evt.preventDefault();
-        this.$ajax({
-          method:"POST",
-          url:'/Project/changeProjectInfo',
-          data:JSON.stringify(this.form),
-        }).then((res) => {
+        this.$ajax.post('/Project/changeProjectInfo',
+          JSON.stringify(this.form),
+          {headers:{"Content-Type": "application/json"}}
+        ).then((res) => {
           if(res.data.errcode === 0){
             this.project = res.data.data;
             this.form = res.data.data;
@@ -163,11 +162,10 @@
         this.addLeaguerShow = 'yes';
       },
       addLeaguer(){
-        this.$ajax({
-          method:"POST",
-          url:'/Project/addProjectLeaguer',
-          data:JSON.stringify(this.addLeaguerMsg),
-        }).then((res) => {
+        this.$ajax.post('/Project/addProjectLeaguer',
+          JSON.stringify(this.addLeaguerMsg),
+          {headers:{"Content-Type": "application/json"}}
+        ).then((res) => {
           if(res.data.errcode === 0){
             this.leaguers = res.data.data;
             alert(res.data.info);
@@ -180,11 +178,10 @@
       },
       deleteLeaguer(userAccount){
         this.deleteLeaguerMsg.leaguerAccount = userAccount;
-        this.$ajax({
-          method:"POST",
-          url:'/Project/deleteProjectLeaguer',
-          data:JSON.stringify(this.deleteLeaguerMsg),
-        }).then((res) => {
+        this.$ajax.post('/Project/deleteProjectLeaguer',
+          JSON.stringify(this.deleteLeaguerMsg),
+          {headers:{"Content-Type": "application/json"}}
+        ).then((res) => {
           if(res.data.errcode === 0){
             this.leaguers = res.data.data;
             alert(res.data.info);
@@ -198,11 +195,10 @@
       projectArchive(projectId){
           var data = {};
           data['projectId'] = projectId;
-        this.$ajax({
-          method:"POST",
-          url:'/Project/archiveProject',
-          data:JSON.stringify(this.data),
-        }).then((res) => {
+        this.$ajax.post('/Project/archiveProject',
+          JSON.stringify(this.data),
+          {headers:{"Content-Type": "application/json"}}
+        ).then((res) => {
           if(res.data.errcode === 0){
             alert(res.data.info);
           }else{
@@ -218,11 +214,10 @@
           else roleId = 1;
           data['leaguerAccount'] = userAccount;
           data['roleId'] = roleId;
-          this.$ajax({
-            method:"POST",
-            url:'/Role/changeLeaguerRole',
-            data:JSON.stringify(data),
-          }).then((res) => {
+          this.$ajax.post('/Role/changeLeaguerRole',
+            JSON.stringify(data),
+            {headers:{"Content-Type": "application/json"}}
+          ).then((res) => {
             if (res.data.errcode === 0) {
               this.leaguers = res.data.data;
               alert(res.data.info);
@@ -234,18 +229,25 @@
       }
     },
     created(){
-      this.$ajax.post('/Project/getProjectInfo').then((res) => {
+      this.$ajax.post('/Project/getProjectInfo',
+        {projectId:this.$route.params.projectId},
+        {headers:{"Content-Type": "application/json"}}
+      ).then((res) => {
         this.project = res.data.data;
         this.form = res.data.data;
       }).catch(res => {
         console.log(res)
       });
-      this.$ajax.post('/Project/getProjectLeaguerList').then((res) => {
+      this.$ajax.post('/Project/getProjectLeaguerList',
+        {projectId:this.$route.params.projectId},
+        {headers:{"Content-Type": "application/json"}}).then((res) => {
         this.leaguers = res.data.data;
       }).catch(res => {
         console.log(res)
       });
-      this.$ajax.post('/Project/getBoardListByProjectId').then((res) => {
+      this.$ajax.post('/Project/getBoardListByProjectId',
+        {projectId:this.$route.params.projectId},
+        {headers:{"Content-Type": "application/json"}}).then((res) => {
         this.boards = res.data.data;
       }).catch(res => {
         console.log(res)
