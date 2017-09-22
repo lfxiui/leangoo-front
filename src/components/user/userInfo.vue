@@ -207,11 +207,14 @@
       onSubmit(evt) { //表单提交事件在这里
         evt.preventDefault();
         var form = this.form;
-        this.$ajax({
-          method:"POST",
-          url:'/User/changeUserInfo',
-          data:JSON.stringify(form),
-        }).then((res) => {
+        this.$ajax.post('/User/changeUserInfo',
+          JSON.stringify(form),
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        ).then((res) => {
           if(res.data.errcode === 0){
             this.user = res.data.data;
             form.userSex = res.data.data.userSex;
@@ -235,11 +238,14 @@
         }else if(form2.newPwd != form2.newPwdConfirm){
             alert("两次新密码输入不一致，请重新输入!")
         }else {
-          this.$ajax({
-            method:"POST",
-            url:'/User/changeUserPassword',
-            data:JSON.stringify(this.form2),
-          }).then((res) => {
+          this.$ajax.post('/User/changeUserPassword',
+            JSON.stringify(this.form2),
+            {
+              headers: {
+                "Content-Type": "application/json"
+              }
+            }
+          ).then((res) => {
             if(res.data.errcode === 0){
               this.user.userPassword = res.data.data.userPassword;
               alert(res.data.info);
@@ -263,11 +269,14 @@
           this.addFriendShow = 'yes';
       },
       addFriend(){
-        this.$ajax({
-          method:"POST",
-          url:'/UserFriend/addFriend',
-          data:JSON.stringify(this.addFriendMsg),
-        }).then((res) => {
+        this.$ajax.post(
+          '/UserFriend/addFriend',
+          JSON.stringify(this.addFriendMsg), {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        ).then((res) => {
           if(res.data.errcode === 0){
             this.friends = res.data.data;
             alert(res.data.info);
@@ -280,11 +289,15 @@
       },
       deleteFriend(friendAccount){
         this.deleteFriendMsg.friendAccount = friendAccount;
-        this.$ajax({
-          method:"POST",
-          url:'/UserFriend/deleteFriend',
-          data:JSON.stringify(this.deleteFriendMsg),
-        }).then((res) => {
+        this.$ajax.post(
+          '/UserFriend/deleteFriend',
+          JSON.stringify(this.deleteFriendMsg),
+          {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }
+        ).then((res) => {
           if(res.data.errcode === 0){
             this.friends = res.data.data;
             alert(res.data.info);
@@ -466,13 +479,13 @@
     float: left;
   }
   .card{
-    border: 0px;
+    border: 0px !important;
   }
   .card-header{
-    background-color: #EDEFF0;
+    background-color: #EDEFF0 !important;
   }
   .card-header-tabs{
-    margin-left: 35%;
+    margin-left: 35% !important;
   }
   .myTab-body{
     margin-left: 15%;

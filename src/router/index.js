@@ -24,7 +24,7 @@ export default new Router({
             component: BoardPage
         },
         {
-            path: '/project',
+            path: '/project/:projectId',
             name: 'Project',
             component: Project
         }

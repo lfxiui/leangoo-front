@@ -22,7 +22,6 @@ Vue.use(VueFuse)
 Vue.use(Vue2Filters)
 Vue.use(ElementUI)
 Vue.component('icon', Icon)
-axios.defaults.baseURL = '/api'
 Vue.prototype.$ajax = axios
 Vue.prototype.lodash = lodash
     /* eslint-disable no-new */
