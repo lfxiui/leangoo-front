@@ -463,7 +463,7 @@
     width: 350px;
     top: 26%;
     left: 345px;
-    position: fixed;
+    position: fixed !important;
     z-index: 2000;
     right: 20px;
     -webkit-box-shadow: #666 0px 0px 10px;
