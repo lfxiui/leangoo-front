@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      <b-card no-body style="text-align: center">
+      <b-card no-body class="pm-tabs-card">
         <b-tabs ref="tabs" card id="project-card-tab">
           <b-tab title="看板">
             <div style="margin-left: 15%;margin-right: 15%">
@@ -69,14 +69,14 @@
                   </span>
                   </div>
                   <div style="text-align: left">
-                    <p class="myTab-avatar-p">{{leaguer.userAccount}}</p>
+                    <p class="myTab-avatar-p">{{leaguer.userName}}</p>
                     <p>{{leaguer.userEmail}}</p>
                   </div>
                 </div>
                 <div style="float: right">
-                  <div v-on:change="updateRole(leaguer.userAccount,leaguer.roleId)" style="width: 120px;display: inline-block">
+                  <!--<div v-on:change="updateRole(leaguer.userAccount,leaguer.roleId)" style="width: 120px;display: inline-block">
                   <b-form-select id="role" :options="role" required v-model="leaguer.roleId" size=""></b-form-select>
-                  </div>
+                  </div>-->
                   <b-button variant="danger" size="" v-on:click="deleteLeaguer(leaguer.userAccount)">
                     删除
                   </b-button>
@@ -123,11 +123,11 @@
           },
           boards: [
           ],
-          leaguers:[],
+          leaguers:[]/*,
           role: [
             {text: '管理员', value: 1},
             {text: '普通成员', value: 2}
-          ]
+          ]*/
         }
     },
     methods: {
@@ -310,7 +310,7 @@
     height: 85px;
     width: 85px;
   }
-  .card {
+  /*.card {
     border: 0px;
   }
 
@@ -320,8 +320,11 @@
 
   .card-header-tabs {
       margin-left: 30%;
+  }*/
+  .pm-tabs-card{
+    text-align: center;
+    border: 0px;
   }
-
   .project-board{
     width: 200px;
     height: 100px;
