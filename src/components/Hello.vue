@@ -42,7 +42,7 @@
           <b-button-group class="button-group1 mx-3" size="sm">
             <b-button variant="info">项目成员</b-button>
             <b-button variant="info">项目统计</b-button>
-            <b-button variant="info">置顶</b-button>
+            <b-button variant="info">删除项目</b-button>
           </b-button-group>
           <b-button variant="info" size="sm" style="background-color: rgba(255, 255, 255, 0.3)" v-b-toggle="'collapes'+index">
             <icon :name="icon"></icon>
@@ -198,14 +198,14 @@ export default {
     }).catch(res => {
       console.log(res)
     }),
-      this.$ajax.post('/Board/getUserPersnoalBoardList').then((res) => {
+      this.$ajax.post('/Board/getUserPersonalBoardList').then((res) => {
         this.personalBoard = res.data.data
         Bus.$emit('initPersonalBoard',this.personalBoard)
       }).catch(res => { console.log(res) }),
-      this.$ajax.post('/Archive/getArchiveProjectList').then((res) => {
+      this.$ajax.post('/Project/getArchiveProject').then((res) => {
         this.archiveProjectList = res.data.data
       }).catch(res => { console.log(res) }),
-        this.$ajax.post('/Archive/getArchiveBoardList').then((res) => {
+        this.$ajax.post('/Board/getArchiveBoardList').then((res) => {
         this.archiveBoardList = res.data.data
       }).catch(res => { console.log(res) })
     Bus.$on('search', value => {
