@@ -7,7 +7,7 @@
           <b-button-group class="mx-1" size="sm">
             <b-dropdown class="nav-button-drown" variant="default" size="sm" :popper-opts="{'dataObject':{'data.hide':showData}}">
               <template slot="button-content">
-               {{startDate | formatDate}}-{{endDate | formatDate}}
+                {{startDate | formatDate}}-{{endDate | formatDate}}
               </template>
               <b-card style="width:250px;border:none" no-body>
                 <b-card-header style="font-size:14px;padding:10px,15px">
@@ -16,11 +16,11 @@
                 <b-card-body>
                   <span class="time-zone">时区 GMT +8:00</span>
                   <el-date-picker type="date" placeholder="开始日期" v-model="startDate" size="small"></el-date-picker>
-                  <el-date-picker type="date" placeholder="结束日期"  v-model="endDate" size="small" style="margin-top:10px"></el-date-picker>
+                  <el-date-picker type="date" placeholder="结束日期" v-model="endDate" size="small" style="margin-top:10px"></el-date-picker>
                 </b-card-body>
                 <b-card-footer>
-                    <b-btn variant="success" size="sm"  style="cursor:pointer">保存</b-btn>
-                    <b-btn variant="default" size="sm"  style="cursor:pointer" @click="cancelDate($event)">取消</b-btn>
+                  <b-btn variant="success" size="sm" style="cursor:pointer">保存</b-btn>
+                  <b-btn variant="default" size="sm" style="cursor:pointer" @click="cancelDate($event)">取消</b-btn>
                 </b-card-footer>
               </b-card>
             </b-dropdown>
@@ -111,7 +111,7 @@
 
 <script>
 import draggable from 'vuedraggable'
-import {formatDate} from '../../common/formatDate'
+import { formatDate } from '../../common/formatDate'
 export default {
   components: { draggable },
   data() {
@@ -124,21 +124,25 @@ export default {
       onEdit: false,
       cardList: [],
       List: [],
-      startDate:'',
-      endDate:'',
-      showData:true,
+      startDate: '',
+      endDate: '',
+      showData: true,
 
     }
   },
   methods: {
-    cancelDate(event){
-      this.showData=false;
+    cancelDate(event) {
+      this.showData = false;
     },
     delList(index) { this.List.splice(index, 1) },
     delCard(index, cindex) {
-      console.log(this.List[index].cardList)
-      this.List[index].cardList.splice(cindex, 1)
-      console.log(this.List[index].cardList.length)
+      this.$ajax.post('/Card/delCard', this.List[index].cardList[cindex]).then(res => {
+        if (res.data.errcode == 0)
+          this.List[index].cardList.splice(cindex, 1)
+        else alert("删除失败")
+      })
+
+
     },
     addCard(event) {
       if (!this.addCardIsOpen) {
@@ -148,8 +152,23 @@ export default {
       }
     },
     saveCard(event, index) {
-      this.List[index].cardList.push({ 'cardId': '1', 'cardName': this.nCardName, 'cardIntro': '', 'cardEndDate': '', 'cardStartDate': '', 'cardLocate': this.List[index].cardList.length })
-      this.nCardName = '';
+      var params=new URLSearchParams();
+      params.append('cardName',this.nCardName);
+      params.append('cardLocate',this.List[index].cardList.length);
+      params.append('listId',this.List[index].listId)
+      console.log(this.nCardName+"  "+this.List[index].cardList.length);
+      this.$ajax.post('/Card/newCard', params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }).then(res => {
+        this.List[index].cardList.push(res.data.data)
+        this.nCardName = ''
+        event.target.parentNode.style.display = 'none'
+        event.target.parentNode.previousElementSibling.style.display = 'block'
+        this.addCardIsOpen = false;
+      })
+
 
     },
     cancelSave(event) {
@@ -179,11 +198,14 @@ export default {
       return true
     },
     dragEnd(event) {
-      console.log(event);
+      this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List),{
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }).then(res => console.log(res)).catch(res => console.log(res))
     },
     datadragEnd(evt) {
-      console.log('拖动前索引:' + evt.oldIndex)
-      console.log('拖动后索引:' + evt.newIndex)
+
     },
   },
   computed: {
@@ -206,20 +228,20 @@ export default {
     }
   },
   created() {
-    this.$ajax.post('/Card/getCardList').then(res => { this.List = res.data.data }).catch(res => (console.log(res)));
+    this.$ajax.post('/Card/getCardList', { 'boardId': this.boardId }).then(res => { this.List = res.data.data }).catch(res => (console.log(res)));
     HTMLElement.prototype.__defineGetter__("currentStyle", function() {
       return this.ownerDocument.defaultView.getComputedStyle(this, null);
     });
     this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
       this.boardName = result.data.data.boardName;
-      this.startDate=result.data.data.boardStartDate;
-      this.endDate=result.data.data.boardEndDate;
+      this.startDate = result.data.data.boardStartDate;
+      this.endDate = result.data.data.boardEndDate;
     }).catch(res => { console.log(res) })
   },
-  filters:{
-    formatDate(time){
-      var date=new Date(time);
-      return formatDate(date,'MM-dd');
+  filters: {
+    formatDate(time) {
+      var date = new Date(time);
+      return formatDate(date, 'MM-dd');
     }
   }
 }
@@ -318,20 +340,20 @@ export default {
 
 
 .list-title {
-  line-height: 25px;
-  height: 25px;
-  padding: 0;
+  line-height: 25px ! important;
+  height: 25px !important;
+  padding: 0 !important;
   text-align: left;
   border: none;
 }
 
 .list-title-menu button {
-  background-color: #e7e7e7;
-  cursor: pointer;
+  background-color: #e7e7e7 ! important;
+  cursor: pointer ! important;
 }
 
 .list-title-menu ::after {
-  content: none;
+  content: none ! important;
 }
 
 .task-top-area {
@@ -340,9 +362,9 @@ export default {
 
 .list-footer {
   height: 33px;
-  line-height: 33px;
-  padding: 0;
-  border: none;
+  line-height: 33px ! important;
+  padding: 0 ! important;
+  border: none ! important;
 }
 
 .card-name {
