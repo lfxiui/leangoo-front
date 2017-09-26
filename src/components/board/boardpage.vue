@@ -5,9 +5,9 @@
       <b-nav is-nav-bar>
         <b-button-toolbar>
           <b-button-group class="mx-1" size="sm">
-            <b-dropdown class="nav-button-drown" variant="default" size="sm" :popper-opts="{'dataObject':{'data.hide':showData}}">
+            <b-dropdown class="nav-button-drown" variant="default" size="sm" ref="dateDrown">
               <template slot="button-content">
-                {{startDate | formatDate}}-{{endDate | formatDate}}
+                {{startDate | formatDate}}至{{endDate | formatDate}}
               </template>
               <b-card style="width:250px;border:none" no-body>
                 <b-card-header style="font-size:14px;padding:10px,15px">
@@ -15,12 +15,12 @@
                 </b-card-header>
                 <b-card-body>
                   <span class="time-zone">时区 GMT +8:00</span>
-                  <el-date-picker type="date" placeholder="开始日期" v-model="startDate" size="small"></el-date-picker>
-                  <el-date-picker type="date" placeholder="结束日期" v-model="endDate" size="small" style="margin-top:10px"></el-date-picker>
+                  <el-date-picker type="date" placeholder="开始日期" v-model="t_startDate" size="small"></el-date-picker>
+                  <el-date-picker type="date" placeholder="结束日期" v-model="t_endDate" size="small" style="margin-top:10px"></el-date-picker>
                 </b-card-body>
                 <b-card-footer>
-                  <b-btn variant="success" size="sm" style="cursor:pointer">保存</b-btn>
-                  <b-btn variant="default" size="sm" style="cursor:pointer" @click="cancelDate($event)">取消</b-btn>
+                  <b-btn variant="success" size="sm" style="cursor:pointer" @click="saveDate">保存</b-btn>
+                  <b-btn variant="default" size="sm" style="cursor:pointer" @click="cancelDate">取消</b-btn>
                 </b-card-footer>
               </b-card>
             </b-dropdown>
@@ -34,9 +34,14 @@
             </b-btn>
             <b-btn variant="default" class="nav-button">
               <icon name="group" style="padding-top:2px"></icon>项目成员可见</b-btn>
-            <b-btn variant="default" class="nav-button">
+            <b-btn variant="default" class="nav-button" v-b-modal.newListModal>
               <icon name="plus" style="padding-top:2px"></icon>新建列表
             </b-btn>
+            <b-modal id="newListModal" size="sm" title="新建列表" @ok="newList" @shown="nListName=''" button-size="sm">
+              <template slot="modal-ok">保存</template>
+              <template slot="modal-cancel">取消</template>
+              <b-form-input placeholder="请输入列表名" v-model="nListName"></b-form-input>
+            </b-modal>
           </b-button-group>
         </b-button-toolbar>
       </b-nav>
@@ -57,7 +62,7 @@
       </b-nav>
     </b-navbar>
     <div class="board_content_main" style="margin-left:20px;font-size:14px">
-      <draggable v-model="List" :options="{'ghostClass':'ghost','animation':0,'group':'dragList','handle':'.list-title'}" style="align-items: flex-start" class="card-deck">
+      <draggable v-model="List" :options="{'ghostClass':'ghost','animation':0,'group':'dragList','handle':'.list-title'}" style="align-items: flex-start" class="card-deck" @end="dragEnd">
         <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1">
           <b-card-header class="list-title">
             {{item.listName}}
@@ -126,19 +131,75 @@ export default {
       List: [],
       startDate: '',
       endDate: '',
-      showData: true,
-
+      t_startDate: '',
+      t_endDate: '',
+      nListName: ''
     }
   },
   methods: {
-    cancelDate(event) {
-      this.showData = false;
+    newList() {
+      var params = new URLSearchParams();
+      params.append('listName', this.nListName)
+      if(this.List==null)
+      params.append('listLocate', 0)
+      else params.append('listLocate',this.List.length)
+      params.append('boardId', this.boardId)
+      this.$ajax.post('/List/newList', params, {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }).then(res => this.List = res.data.data).catch(res=>console.log(res))
     },
-    delList(index) { this.List.splice(index, 1) },
+    saveDate() {
+      this.$ajax.post('/Board/updateBoard', { 'boardId': this.boardId, 'boardStartDate': this.t_startDate, 'boardEndDate': this.t_endDate }).then(res => { if (res.data.errcode == 0) { this.endDate = this.t_endDate; this.startDate = this.t_startDate } })
+       this.$refs.dateDrown.visible = false;
+    },
+    cancelDate() {
+      this.t_endDate=this.endDate;
+      this.t_startDate=this.startDate;
+      this.$refs.dateDrown.visible = false;
+    },
+    delList(index) {
+      var params = new URLSearchParams;
+      params.append('listId',this.List[index].listId)
+      params.append('boardId',this.boardId)
+      this.$ajax.post('/List/delList', params,{ headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }}).then(res => {
+        if (res.data.errcode == 0) {
+          this.List[index].cardList.splice(cindex, 1)
+          for (var tindex in this.List) {
+            this.List[tindex].listLocate = tindex;
+            for (var ctindex in this.List[tindex].cardList) {
+              this.List[tindex].cardList[ctindex].cardListId = this.List[tindex].listId
+              this.List[tindex].cardList[ctindex].cardLocate = ctindex;
+            }
+          }
+          this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List), {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }).then(res => console.log(res)).catch(res => console.log(res))
+        } else alert("删除失败")
+      })
+    },
     delCard(index, cindex) {
       this.$ajax.post('/Card/delCard', this.List[index].cardList[cindex]).then(res => {
-        if (res.data.errcode == 0)
+        if (res.data.errcode == 0) {
           this.List[index].cardList.splice(cindex, 1)
+          for (var tindex in this.List) {
+            this.List[tindex].listLocate = tindex;
+            for (var ctindex in this.List[tindex].cardList) {
+              this.List[tindex].cardList[ctindex].cardListId = this.List[tindex].listId
+              this.List[tindex].cardList[ctindex].cardLocate = ctindex;
+            }
+          }
+          this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List), {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }).then(res => console.log(res)).catch(res => console.log(res))
+        }
         else alert("删除失败")
       })
 
@@ -152,11 +213,10 @@ export default {
       }
     },
     saveCard(event, index) {
-      var params=new URLSearchParams();
-      params.append('cardName',this.nCardName);
-      params.append('cardLocate',this.List[index].cardList.length);
-      params.append('listId',this.List[index].listId)
-      console.log(this.nCardName+"  "+this.List[index].cardList.length);
+      var params = new URLSearchParams();
+      params.append('cardName', this.nCardName);
+      params.append('cardLocate', this.List[index].cardList.length);
+      params.append('cardListId', this.List[index].listId)
       this.$ajax.post('/Card/newCard', params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
@@ -164,6 +224,18 @@ export default {
       }).then(res => {
         this.List[index].cardList.push(res.data.data)
         this.nCardName = ''
+        for (var tindex in this.List) {
+          this.List[tindex].listLocate = tindex;
+          for (var ctindex in this.List[tindex].cardList) {
+            this.List[tindex].cardList[ctindex].cardListId = this.List[tindex].listId
+            this.List[tindex].cardList[ctindex].cardLocate = ctindex;
+          }
+        }
+        this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List), {
+          headers: {
+            "Content-Type": "application/json"
+          }
+        }).then(res => console.log(res)).catch(res => console.log(res))
         event.target.parentNode.style.display = 'none'
         event.target.parentNode.previousElementSibling.style.display = 'block'
         this.addCardIsOpen = false;
@@ -198,11 +270,19 @@ export default {
       return true
     },
     dragEnd(event) {
-      this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List),{
-            headers: {
-              "Content-Type": "application/json"
-            }
-          }).then(res => console.log(res)).catch(res => console.log(res))
+      console.log("dragEnd")
+      for (var index in this.List) {
+        this.List[index].listLocate = index;
+        for (var cindex in this.List[index].cardList) {
+          this.List[index].cardList[cindex].cardListId = this.List[index].listId
+          this.List[index].cardList[cindex].cardLocate = cindex;
+        }
+      }
+      this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List), {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }).then(res => console.log(res)).catch(res => console.log(res))
     },
     datadragEnd(evt) {
 
@@ -218,13 +298,6 @@ export default {
       this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
         this.boardName = result.data.data.boardName;
       }).catch(res => { console.log(res) })
-    },
-    List() {
-      for (var index in this.List) {
-        this.List[index].listLocate = index;
-        for (var cindex in this.List[index].cardList)
-          this.List[index].cardList[cindex].cardLocate = cindex;
-      }
     }
   },
   created() {
