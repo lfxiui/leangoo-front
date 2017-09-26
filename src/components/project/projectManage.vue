@@ -57,7 +57,7 @@
                 <hr>
               </div>
               <div v-if="addLeaguerShow == 'yes'" class="myTab-title" style="text-align: right">
-                <b-form-input size="sm" type="text" v-model="addLeaguerMsg.leaguerAccount" placeholder="输入账号" style="width: 200px;display: inline"></b-form-input>
+                <b-form-input size="sm" type="text" v-model="leaguerAccount" placeholder="输入账号" style="width: 200px;display: inline"></b-form-input>
                 <b-button variant="success" size="sm" v-on:click="addLeaguer">添加</b-button>
                 <hr>
               </div>
@@ -69,7 +69,7 @@
                   </span>
                   </div>
                   <div style="text-align: left">
-                    <p class="myTab-avatar-p">{{leaguer.userName}}</p>
+                    <p class="myTab-avatar-p">{{leaguer.userAccount}}</p>
                     <p>{{leaguer.userEmail}}</p>
                   </div>
                 </div>
@@ -96,7 +96,7 @@
               </div>
               <div class="myTab-text2">
                 项目管理员可以通过右边的归档按钮对项目进行归档操作。
-                <b-button style="float: right" size="sm" v-on:click="projectArchive(project.projectId)">归档</b-button>
+                <b-button style="float: right" size="sm" v-on:click="projectArchive()">归档</b-button>
               </div>
             </div>
           </b-tab>
@@ -111,11 +111,11 @@
     components: {Icon},
     data(){
         return{
+          projectId:this.$route.params.projectId,
           project:{},
           isChangeInfo: 'no',
           addLeaguerShow: 'no',
-          addLeaguerMsg: {leaguerAccount:''},
-          deleteLeaguerMsg: {leaguerAccount:''},
+          leaguerAccount:'',
           form: {
               projectId:'',
               projectName:'',
@@ -163,7 +163,7 @@
       },
       addLeaguer(){
         this.$ajax.post('/Project/addProjectLeaguer',
-          JSON.stringify(this.addLeaguerMsg),
+          {leaguer:this.leaguerAccount,projectId:this.projectId},
           {headers:{"Content-Type": "application/json"}}
         ).then((res) => {
           if(res.data.errcode === 0){
@@ -177,9 +177,8 @@
         });
       },
       deleteLeaguer(userAccount){
-        this.deleteLeaguerMsg.leaguerAccount = userAccount;
         this.$ajax.post('/Project/deleteProjectLeaguer',
-          JSON.stringify(this.deleteLeaguerMsg),
+          {userAccount:userAccount,projectId:this.projectId},
           {headers:{"Content-Type": "application/json"}}
         ).then((res) => {
           if(res.data.errcode === 0){
@@ -192,11 +191,9 @@
           console.log(res)
         });
       },
-      projectArchive(projectId){
-          var data = {};
-          data['projectId'] = projectId;
+      projectArchive(){
         this.$ajax.post('/Project/archiveProject',
-          JSON.stringify(this.data),
+          {projectId:this.projectId},
           {headers:{"Content-Type": "application/json"}}
         ).then((res) => {
           if(res.data.errcode === 0){
@@ -207,7 +204,7 @@
         }).catch(res => {
           console.log(res)
         });
-      },
+      }/*,
       updateRole(userAccount,roleId){
           var data = {};
           if (roleId == 1) roleId = 2;
@@ -226,11 +223,11 @@
           }).catch(res => {
             console.log(res)
           });
-      }
+      }*/
     },
     created(){
       this.$ajax.post('/Project/getProjectInfo',
-        {projectId:this.$route.params.projectId},
+        {projectId:this.projectId},
         {headers:{"Content-Type": "application/json"}}
       ).then((res) => {
         this.project = res.data.data;
@@ -239,14 +236,14 @@
         console.log(res)
       });
       this.$ajax.post('/Project/getProjectLeaguerList',
-        {projectId:this.$route.params.projectId},
+        {projectId:this.projectId},
         {headers:{"Content-Type": "application/json"}}).then((res) => {
         this.leaguers = res.data.data;
       }).catch(res => {
         console.log(res)
       });
       this.$ajax.post('/Project/getBoardListByProjectId',
-        {projectId:this.$route.params.projectId},
+        {projectId:this.projectId},
         {headers:{"Content-Type": "application/json"}}).then((res) => {
         this.boards = res.data.data;
       }).catch(res => {

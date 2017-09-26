@@ -233,7 +233,6 @@
         evt.preventDefault();
         var form2 = this.form2;
         if(form2.oldPwd != this.user.userPassword){
-            alert(this.user.userPassword);
             alert("原密码错误，请重新输入!")
         }else if(form2.newPwd != form2.newPwdConfirm){
             alert("两次新密码输入不一致，请重新输入!")
