@@ -15,8 +15,8 @@
                 </b-card-header>
                 <b-card-body>
                   <span class="time-zone">时区 GMT +8:00</span>
-                  <el-date-picker type="date" placeholder="开始日期" v-model="t_startDate" size="small"></el-date-picker>
-                  <el-date-picker type="date" placeholder="结束日期" v-model="t_endDate" size="small" style="margin-top:10px"></el-date-picker>
+                  <el-date-picker type="date" placeholder="开始日期" v-model="t_startDate" size="small" :picker-options="picker_options"></el-date-picker>
+                  <el-date-picker type="date" placeholder="结束日期" v-model="t_endDate" size="small" style="margin-top:10px" :picker-options="picker_options"></el-date-picker>
                 </b-card-body>
                 <b-card-footer>
                   <b-btn variant="success" size="sm" style="cursor:pointer" @click="saveDate">保存</b-btn>
@@ -64,7 +64,7 @@
     <div class="board_content_main" style="margin-left:20px;font-size:14px">
       <draggable v-model="List" :options="{'ghostClass':'ghost','animation':0,'group':'dragList','handle':'.list-title'}" style="align-items: flex-start" class="card-deck" @end="dragEnd">
         <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1">
-          <b-card-header class="list-title">
+          <b-card-header class="list-title" v-b-modal.changeListNameModal style="cursor:pointer" @click="selectListIndex=index">
             {{item.listName}}
             <b-badge variant="success">{{item.cardList.length}}</b-badge>
             <b-dd size="sm" variant="default" class="float-right list-title-menu" style="background-color:#e7e7e7">
@@ -78,11 +78,8 @@
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee;">
             <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px;max-height:300px;overflow:auto" @end="dragEnd">
-              <div class="task_view btn btn-default" style="min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex" @mouseover.self="showEditAndDelete($event)" @mouseout.self="hideEditAndDelete($event)">
+              <div class="task_view btn btn-default" style="min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex" @mouseover.self="showEditAndDelete($event)" @mouseout.self="hideEditAndDelete($event)" v-b-modal.cardModal>
                 <div class="edit-and-delete-card" style="display:block" @mouseover.self="showEditDiv">
-                  <span style="cursor:pointer">
-                    <icon name="pencil"></icon>
-                  </span>
                   <span style="cursor:pointer" @click.stop="delCard(index,cindex)">
                     <icon name="trash"></icon>
                   </span>
@@ -111,6 +108,24 @@
         </ul>
       </div>
     </div>
+    <b-modal id="changeListNameModal" size="sm" title="修改列表名" @ok="changeListName" @shown="nListName=''" button-size="sm">
+      <template slot="modal-ok">保存</template>
+      <template slot="modal-cancel">取消</template>
+      <b-form-input placeholder="请输入列表名" v-model="nListName"></b-form-input>
+    </b-modal>
+    <b-modal id="cardModal" size="lg">
+      <b-container fluid>
+        <b-row>
+          <b-col col="10"></b-col>
+          <b-col col="2">
+            <ul>
+              <li>添加</li>
+              <li><b-btn>ceshi</b-btn></li>
+            </ul>
+          </b-col>
+        </b-row>
+      </b-container>
+    </b-modal>
   </div>
 </template>
 
@@ -133,39 +148,53 @@ export default {
       endDate: '',
       t_startDate: '',
       t_endDate: '',
-      nListName: ''
+      nListName: '',
+      picker_options: { firstDayOfWeek: 1 },
+      selectListIndex: -1
     }
   },
   methods: {
+    changeListName() {
+      console.log(this.selectListIndex)
+      const listId = this.List[this.selectListIndex].listId;
+      this.List[this.selectListIndex].listName = this.nListName;
+      this.$ajax.post('/List/updateList', { 'listId': listId, 'listName': this.nListName }).then(res => {
+        this.List[this.selectListIndex].listName = this.nListName;
+      })
+    },
     newList() {
       var params = new URLSearchParams();
       params.append('listName', this.nListName)
-      if(this.List==null)
-      params.append('listLocate', 0)
-      else params.append('listLocate',this.List.length)
+      if (this.List == null)
+        params.append('listLocate', 0)
+      else params.append('listLocate', this.List.length)
       params.append('boardId', this.boardId)
       this.$ajax.post('/List/newList', params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded"
         }
-      }).then(res => this.List = res.data.data).catch(res=>console.log(res))
+      }).then(res => this.List = res.data.data).catch(res => console.log(res))
     },
     saveDate() {
-      this.$ajax.post('/Board/updateBoard', { 'boardId': this.boardId, 'boardStartDate': this.t_startDate, 'boardEndDate': this.t_endDate }).then(res => { if (res.data.errcode == 0) { this.endDate = this.t_endDate; this.startDate = this.t_startDate } })
-       this.$refs.dateDrown.visible = false;
+      const startDate = formatDate(new Date(this.t_startDate), 'yyyy-MM-dd')
+      const endDate = formatDate(new Date(this.t_endDate), 'yyyy-MM-dd')
+      this.$ajax.post('/Board/updateBoard', { 'boardId': this.boardId, 'boardStartDate': startDate, 'boardEndDate': endDate }).then(res => { if (res.data.errcode == 0) { this.endDate = this.t_endDate; this.startDate = this.t_startDate } })
+      this.$refs.dateDrown.visible = false;
     },
     cancelDate() {
-      this.t_endDate=this.endDate;
-      this.t_startDate=this.startDate;
+      this.t_endDate = this.endDate;
+      this.t_startDate = this.startDate;
       this.$refs.dateDrown.visible = false;
     },
     delList(index) {
       var params = new URLSearchParams;
-      params.append('listId',this.List[index].listId)
-      params.append('boardId',this.boardId)
-      this.$ajax.post('/List/delList', params,{ headers: {
+      params.append('listId', this.List[index].listId)
+      params.append('boardId', this.boardId)
+      this.$ajax.post('/List/delList', params, {
+        headers: {
           "Content-Type": "application/x-www-form-urlencoded"
-        }}).then(res => {
+        }
+      }).then(res => {
         if (res.data.errcode == 0) {
           this.List[index].cardList.splice(cindex, 1)
           for (var tindex in this.List) {
@@ -179,7 +208,7 @@ export default {
             headers: {
               "Content-Type": "application/json"
             }
-          }).then(res => console.log(res)).catch(res => console.log(res))
+          }).then(res => this.List = res.data.data).catch(res => console.log(res))
         } else alert("删除失败")
       })
     },
@@ -309,6 +338,8 @@ export default {
       this.boardName = result.data.data.boardName;
       this.startDate = result.data.data.boardStartDate;
       this.endDate = result.data.data.boardEndDate;
+      this.t_endDate = this.endDate;
+      this.t_startDate = this.startDate;
     }).catch(res => { console.log(res) })
   },
   filters: {

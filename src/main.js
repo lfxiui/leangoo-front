@@ -17,6 +17,7 @@ import 'element-ui/lib/theme-default/index.css'
 
 Vue.config.productionTip = false;
 router.mode = "history"
+axios.defaults.baseURL='/api'
 Vue.use(BootstrapVue)
 Vue.use(VueFuse)
 Vue.use(Vue2Filters)

@@ -119,14 +119,14 @@ export default {
 }
 
 .header-center li a {
-  color: white !important;
+  color: white ;
   cursor: pointer;
 }
 
 .ml-auto button {
-  height: 32px !important;
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  color: rgb(255, 255, 255) !important;
+  height: 32px ;
+  background-color: rgba(255, 255, 255, 0.3) ;
+  color: rgb(255, 255, 255) ;
   cursor: pointer;
 }
 
@@ -134,8 +134,8 @@ export default {
   font-size: 14px;
   line-height: 14px;
   height: 32px;
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  color: rgb(255, 255, 255) !important;
+  background-color: rgba(255, 255, 255, 0.3) ;
+  color: rgb(255, 255, 255) ;
   border-radius: 4px;
 }
 
@@ -143,8 +143,8 @@ export default {
   font-size: 14px;
   line-height: 14px;
   height: 32px;
-  background-color: rgba(255, 255, 255, 0.3) !important;
-  color: rgb(255, 255, 255) !important;
+  background-color: rgba(255, 255, 255, 0.3) ;
+  color: rgb(255, 255, 255) ;
   border-radius: 4px;
 }
 
