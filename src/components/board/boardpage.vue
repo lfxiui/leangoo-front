@@ -113,18 +113,58 @@
       <template slot="modal-cancel">取消</template>
       <b-form-input placeholder="请输入列表名" v-model="nListName"></b-form-input>
     </b-modal>
-    <b-modal id="cardModal" size="lg">
-      <b-container fluid>
-        <b-row>
-          <b-col col="10"></b-col>
-          <b-col col="2">
-            <ul>
-              <li>添加</li>
-              <li><b-btn>ceshi</b-btn></li>
+    <b-modal id="cardModal" size="lg" hide-footer="true" style="margin-top:50px">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-9">
+            <b-form-textarea no-resize="true" rows="1" v-model="cardName"></b-form-textarea>
+            <div class="cardDescription">
+              <span>添加描述</span>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <ul class="cardModal-right-ul">
+              <li>测试</li>
+              <li>
+                <b-btn v-popover:foo.right variant="outline-secondary" size="sm" class="cardli-button">
+                  <icon name="user"></icon>成员</b-btn>
+                <popover name="foo">
+                  <ul>
+                    <li>This is a Test</li>
+                    <li>This is a Test</li>
+                    <li>This is a Test</li>
+                  </ul>
+                </popover>
+              </li>
+              <li>
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                  <icon name="tag"></icon>标签</b-btn>
+              </li>
+              <li>
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                  <icon name="th"></icon>工作量</b-btn>
+              </li>
+              <li>
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                  <icon name="clock-o"></icon>截止时间</b-btn>
+              </li>
+              <li>操作</li>
+              <li>
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                  <icon name="copy"></icon>复制</b-btn>
+              </li>
+               <li>
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                  <icon name="long-arrow-right"></icon>移动</b-btn>
+              </li>
+               <li>
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                  <icon name="trash"></icon>删除</b-btn>
+              </li>
             </ul>
-          </b-col>
-        </b-row>
-      </b-container>
+          </div>
+        </div>
+      </div>
     </b-modal>
   </div>
 </template>
@@ -150,7 +190,8 @@ export default {
       t_endDate: '',
       nListName: '',
       picker_options: { firstDayOfWeek: 1 },
-      selectListIndex: -1
+      selectListIndex: -1,
+      cardName:'agzou'
     }
   },
   methods: {
@@ -481,6 +522,25 @@ export default {
   cursor: pointer;
 }
 
+.cardModal-right-ul {
+  list-style: none;
+  text-align: left;
+}
+
+.cardModal-right-ul li {
+  margin-bottom: 5px;
+}
+
+.cardli-button {
+  width: 115px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 13px;
+}
+.cardDescription{
+  padding-left: 15px;
+  text-align: left;
+}
 .time-zone {
   margin-bottom: 10px;
   display: block;

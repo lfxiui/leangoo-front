@@ -14,10 +14,11 @@ import Vue2Filters from 'vue2-filters'
 import lodash from 'lodash'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-default/index.css'
+import Popover from 'vue-js-popover'
 
 Vue.config.productionTip = false;
 router.mode = "history"
-axios.defaults.baseURL='/api'
+Vue.use(Popover)
 Vue.use(BootstrapVue)
 Vue.use(VueFuse)
 Vue.use(Vue2Filters)
