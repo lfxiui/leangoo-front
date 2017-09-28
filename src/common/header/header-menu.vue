@@ -28,9 +28,9 @@
           <div style="border-bottom: 1px rgb(140,140,140) inset;background-color:#F5F5F5 ">
             <h5 class="text-center">新建</h5>
           </div>
-          <span>新建看板</span>
+          <span @click="newBoard">新建看板</span>
           <p>一个看板包括多个列表,每个列表包括多个任务卡片,团队通过看板共享任务,在线实时协作</p>
-          <span>新建项目</span>
+          <span @click="newProject">新建项目</span>
           <p>一个项目包括多个看板和多名项目成员,通过项目可以对看板进行分组管理,更好的实现项目协作</p>
         </div>
       </b-nav-item-dropdown>
@@ -76,6 +76,14 @@ export default {
   watch:{
     term(newValue){
       Bus.$emit('search',newValue);
+    }
+  },
+  methods:{
+    newBoard(){
+      Bus.$emit('showNewBoardModal')
+    },
+    newProject(){
+      Bus.$emit('showNewProjectModal')
     }
   },
   data() {
@@ -155,7 +163,6 @@ export default {
 .newButton p {
   font-size: 12px;
   color: rgb(140, 140, 140);
-  cursor: pointer;
 }
 
 .newButton span {

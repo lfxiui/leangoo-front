@@ -17,12 +17,12 @@
         <b-collapse id="collapse1" no-body>
           <b-card>
             <div class="card-text">
-              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new" >
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new"  v-b-modal.newBoardModal @clikc="selected=personalProjectId">
                 <div class="card-text">
                   <span style="font-size: 16px;line-height: 90px">新建面板</span>
                 </div>
               </b-card>
-              <draggable v-model="personalBoard" class="card-deck" :move="checkMove" :options="dragOptions" @update="datadragEnd">
+              <draggable v-model="personalBoard" class="card-deck" :move="checkMove" :options="dragOptions" @end="dataDragEnd">
                 <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
                     <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
@@ -40,9 +40,9 @@
           <icon name="cubes"></icon>
           <h6 style="padding-left: 15px">{{Project.projectName}}</h6>
           <b-button-group class="button-group1 mx-3" size="sm">
-            <b-button variant="info">项目成员</b-button>
-            <b-button variant="info">项目统计</b-button>
-            <b-button variant="info">删除项目</b-button>
+            <b-button variant="info" @click="projectRouter(Project.projectId,1)">项目成员</b-button>
+            <b-button variant="info" @click="projectRouter(Project.projectId,2)">项目统计</b-button>
+            <b-button variant="info">归档</b-button>
           </b-button-group>
           <b-button variant="info" size="sm" style="background-color: rgba(255, 255, 255, 0.3)" v-b-toggle="'collapes'+index">
             <icon :name="icon"></icon>
@@ -51,12 +51,12 @@
         <b-collapse no-body :id="'collapes'+index" class="coll">
           <b-card>
             <div class="card-text">
-              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new">
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new"  v-b-modal.newBoardModal @click="selected=Project.projectId">
                 <div class="card-text">
-                  <span style="font-size: 16px;line-height: 90px">新建面板</span>
+                  <span style="font-size: 16px;line-height: 90px" >新建面板</span>
                 </div>
               </b-card>
-              <draggable v-model="Project.boardList" class="card-deck" :move="checkMove">
+              <draggable v-model="Project.boardList" class="card-deck" :move="checkMove" @end="dataDragEnd">
                 <b-card v-for="(Board,index) in Project.boardList" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
                     <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
@@ -100,7 +100,14 @@
         </tbody>
       </table>
     </b-modal>
-
+    <b-modal id="newBoardModal" ref="newBoardModal" title="新建看板" style="color:black" @ok="newBoard" ok-title="保存" close-title="取消">
+      <b-form :inline="true">
+            <label for="newBoardName">看板名称</label>
+           <b-form-input id="newBoardName" size="sm" v-model="newBoardName"></b-form-input>
+           <label for="projectName">所属项目</label>
+           <b-form-select id="projectName" :options="selectOptoins" v-model="selected"></b-form-select>
+      </b-form>
+    </b-modal>
   </div>
 </template>
 
@@ -120,7 +127,10 @@ export default {
       personalBoard: [],
       archiveProjectList:[],
       archiveBoardList:[],
-      term: ''
+      term: '',
+      newBoardName:null,
+      selected:null,
+      personalProjectId:''
     }
   },
   watch: {
@@ -137,6 +147,14 @@ export default {
     }
   },
   computed: {
+    selectOptoins(){
+      const data=[];
+      data.push({text:'个人看板',value:this.personalProjectId})
+      for(let i=0;i<this.projectList.length;i++){
+        data.push({text:this.projectList[i].projectName,value:this.projectList[i].projectId})
+      }
+      return data;
+    },
     SortPersonalBoard() {
       var filterKey = this.term;
       var data = this.personalBoard;
@@ -165,6 +183,21 @@ export default {
     }
   },
   methods: {
+    newBoard(){
+      var params=new URLSearchParams;
+      params.append('boardName',this.newBoardName)
+      params.append('boardLocate',this.projectList.length)
+      params.append('projectId',this.selected)
+      console.log(params)
+      this.$ajax.post('/Board/newBoard',params,{
+         headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }).then(res=>{
+        this.newBoardName=null
+        this.$router.push({path:'/board/'+res.data.data})
+      })
+    },
     showCollapse() {
       if (this.icon === 'chevron-down')
         this.icon = 'chevron-up';
@@ -177,20 +210,20 @@ export default {
       console.log("relate"+relatedElement.boardName)
       return true;
     },
-    datadragEnd(evt) {
-      console.log('拖动前索引:' + evt.oldIndex)
-      console.log('拖动后索引:' + evt.newIndex)
-      console.log(this.personalBoard[0].boardName + this.personalBoard[0].boardLocate)
-      for (let i = 0; i < this.personalBoard.length; i++) {
-        this.personalBoard[i].boardLocate = i
-      }
-      console.log(this.personalBoard[0].boardName + this.personalBoard[0].boardLocate)
+    dataDragEnd(evt) {
+     
     },
     router(boardId){
       this.$router.push({path:'/board/'+boardId})
+    },
+    projectRouter(projectId,tab){
+      this.$router.push({path:'/project/'+projectId+'/'+tab})
     }
   },
   created() {
+    this.$ajax.post('/Project/getUserPersonalProjectId').then(res=>{
+      this.personalProjectId=res.data.data
+    })
     this.$ajax.post('/Project/getUserProjectList').then((res) => {
       this.projectList = res.data.data;
       this.searchResult = res.data.data
@@ -210,6 +243,9 @@ export default {
       }).catch(res => { console.log(res) })
     Bus.$on('search', value => {
       this.term = value;
+    })
+    Bus.$on('showNewBoardModal',()=>{
+      this.$refs.newBoardModal.show()
     })
   }
 }

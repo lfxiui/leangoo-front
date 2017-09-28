@@ -24,7 +24,7 @@ export default new Router({
             component: BoardPage
         },
         {
-            path: '/project/:projectId',
+            path: '/project/:projectId/:tab',
             name: 'Project',
             component: Project
         }

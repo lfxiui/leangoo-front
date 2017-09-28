@@ -39,12 +39,12 @@
         </div>
       </div>
       <b-card no-body class="pm-tabs-card">
-        <b-tabs ref="tabs" card id="project-card-tab">
+        <b-tabs ref="tabs" card id="project-card-tab" v-model="tab">
           <b-tab title="看板">
             <div style="margin-left: 15%;margin-right: 15%">
             <b-button variant="secondary" class="project-board">新建看板</b-button>
-            <div v-for="board in boards">
-              <b-button variant="primary" class="project-board" v-on:click="boardClick(board.boardId)">{{board.boardName}}</b-button>
+            <div v-for="(board,index) in boards" :key="index">
+              <b-button variant="primary" class="project-board" @click="boardClick(board.boardId)">{{board.boardName}}</b-button>
             </div>
             </div>
           </b-tab>
@@ -61,7 +61,7 @@
                 <b-button variant="success" size="sm" v-on:click="addLeaguer">添加</b-button>
                 <hr>
               </div>
-              <div v-for="leaguer in leaguers">
+              <div v-for="(leaguer,index) in leaguers" :key="index">
                 <div class="myTab-leaguer">
                   <div class="myTab-avatar">
                   <span>
@@ -112,6 +112,7 @@
     data(){
         return{
           projectId:this.$route.params.projectId,
+          tab:this.$route.params.tab,
           project:{},
           isChangeInfo: 'no',
           addLeaguerShow: 'no',
@@ -156,7 +157,7 @@
         });
       },
       boardClick(boardId){
-        alert(boardId);
+        this.$router.push({path:'/board/'+boardId})
       },
       showAddLeaguer(){
         this.addLeaguerShow = 'yes';

@@ -1,7 +1,7 @@
 <template>
   <div class="board_content">
     <b-navbar toggleable="md" type="dark" style="background-color:rgb(14,116,175);">
-      <b-navbar-brand href="#">{{boardName}}</b-navbar-brand>
+      <b-navbar-brand href="#" v-b-modal.changeBoardNameModal>{{boardName}}</b-navbar-brand>
       <b-nav is-nav-bar>
         <b-button-toolbar>
           <b-button-group class="mx-1" size="sm">
@@ -26,7 +26,7 @@
             </b-dropdown>
           </b-button-group>
           <b-button-group class="mx-1" size="sm" style="height:32px">
-            <b-btn variant="default" class="nav-button">
+            <b-btn variant="default" class="nav-button" v-b-modal.chartsModal>
               <icon name="area-chart"></icon>
             </b-btn>
             <b-btn variant="default" class="nav-button">
@@ -73,7 +73,7 @@
               </template>
               <b-dropdown-item>复制列表</b-dropdown-item>
               <b-dropdown-item>创建引用</b-dropdown-item>
-              <b-dropdown-item @click="delList(index)">删除列表</b-dropdown-item>
+              <b-dropdown-item @click.stop="delList(index)">删除列表</b-dropdown-item>
             </b-dd>
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee;">
@@ -113,11 +113,11 @@
       <template slot="modal-cancel">取消</template>
       <b-form-input placeholder="请输入列表名" v-model="nListName"></b-form-input>
     </b-modal>
-    <b-modal id="cardModal" size="lg" hide-footer="true" style="margin-top:50px">
+    <b-modal id="cardModal" size="lg" :hide-footer="true" style="margin-top:50px">
       <div class="container">
         <div class="row">
           <div class="col-md-9">
-            <b-form-textarea no-resize="true" rows="1" v-model="cardName"></b-form-textarea>
+            <b-form-textarea no-resize="true" :rows="1" v-model="cardName"></b-form-textarea>
             <div class="cardDescription">
               <span>添加描述</span>
             </div>
@@ -153,11 +153,11 @@
                 <b-btn variant="outline-secondary" size="sm" class="cardli-button">
                   <icon name="copy"></icon>复制</b-btn>
               </li>
-               <li>
+              <li>
                 <b-btn variant="outline-secondary" size="sm" class="cardli-button">
                   <icon name="long-arrow-right"></icon>移动</b-btn>
               </li>
-               <li>
+              <li>
                 <b-btn variant="outline-secondary" size="sm" class="cardli-button">
                   <icon name="trash"></icon>删除</b-btn>
               </li>
@@ -165,6 +165,16 @@
           </div>
         </div>
       </div>
+    </b-modal>
+    <b-modal id="chartsModal" size="lg" @shown="chartsShow">
+      <div id="chartsContent" style="width:600px;height:400px;">
+
+      </div>
+    </b-modal>
+     <b-modal id="changeBoardNameModal" size="sm" title="修改看板" @ok="changeBoardName" @shown="nBoardName=''" button-size="sm">
+      <template slot="modal-ok">保存</template>
+      <template slot="modal-cancel">取消</template>
+      <b-form-input placeholder="请输入看板名" v-model="nBoardName"></b-form-input>
     </b-modal>
   </div>
 </template>
@@ -191,12 +201,40 @@ export default {
       nListName: '',
       picker_options: { firstDayOfWeek: 1 },
       selectListIndex: -1,
-      cardName:'agzou'
+      nBoardName:''
+
     }
   },
   methods: {
+    changeBoardName(){
+      this.$ajax.post('/Board/updateBoard',{'boardId':this.boardId,'boardName':this.nBoardName}).then(res=>{
+        if(res.data.errcode==0)
+        this.boardName=this.nBoardName
+      })
+    },
+    chartsShow() {
+      var myChart = this.echarts.init(document.getElementById('chartsContent'));
+      var columns = [];
+      var data=[];
+      for (let i = 0; i < this.List.length; i++)
+        columns.push(this.List[i].listName);
+      for(let i=0;i<this.List.length;i++)
+      data.push({'value':this.List[i].cardList.length,'name':this.List[i].listName})
+      var option = {
+        title: {
+          text: '卡片分布图'
+        },
+        tooltip: {},
+        legend: {
+          bottom: 10,
+          left: 'center',
+          data: columns
+        },
+       series:[{type:'pie',radius:'65%',center:['50%','50%'], selectedMode: 'single',data:data}]
+      };
+      myChart.setOption(option)
+    },
     changeListName() {
-      console.log(this.selectListIndex)
       const listId = this.List[this.selectListIndex].listId;
       this.List[this.selectListIndex].listName = this.nListName;
       this.$ajax.post('/List/updateList', { 'listId': listId, 'listName': this.nListName }).then(res => {
@@ -537,10 +575,12 @@ export default {
   text-align: left;
   font-size: 13px;
 }
-.cardDescription{
+
+.cardDescription {
   padding-left: 15px;
   text-align: left;
 }
+
 .time-zone {
   margin-bottom: 10px;
   display: block;
