@@ -114,7 +114,7 @@
       <b-form-input placeholder="请输入列表名" v-model="nListName"></b-form-input>
     </b-modal>
     <b-modal id="cardModal" size="lg" :hide-footer="true" style="margin-top:50px">
-      <div class="container">
+      <div class="container" style="width:100%">
         <div class="row">
           <div class="col-md-9">
             <b-form-textarea no-resize="true" :rows="1" v-model="cardName"></b-form-textarea>
@@ -201,7 +201,8 @@ export default {
       nListName: '',
       picker_options: { firstDayOfWeek: 1 },
       selectListIndex: -1,
-      nBoardName:''
+      nBoardName:'',
+      cardName:''
 
     }
   },

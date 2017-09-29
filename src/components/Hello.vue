@@ -17,7 +17,7 @@
         <b-collapse id="collapse1" no-body>
           <b-card>
             <div class="card-text">
-              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new"  v-b-modal.newBoardModal @clikc="selected=personalProjectId">
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new"  @click="newBoard(personalProjectId,personalBoard.length)">
                 <div class="card-text">
                   <span style="font-size: 16px;line-height: 90px">新建面板</span>
                 </div>
@@ -51,7 +51,7 @@
         <b-collapse no-body :id="'collapes'+index" class="coll">
           <b-card>
             <div class="card-text">
-              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new"  v-b-modal.newBoardModal @click="selected=Project.projectId">
+              <b-card text-variant="white" class="text-center mb-4 ignore-elements" no-body style="background-color:#4A97C3;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" name="new"   @click="newBoard(Project.projectId,Project.boardList.length)">
                 <div class="card-text">
                   <span style="font-size: 16px;line-height: 90px" >新建面板</span>
                 </div>
@@ -100,14 +100,7 @@
         </tbody>
       </table>
     </b-modal>
-    <b-modal id="newBoardModal" ref="newBoardModal" title="新建看板" style="color:black" @ok="newBoard" ok-title="保存" close-title="取消">
-      <b-form :inline="true">
-            <label for="newBoardName">看板名称</label>
-           <b-form-input id="newBoardName" size="sm" v-model="newBoardName"></b-form-input>
-           <label for="projectName">所属项目</label>
-           <b-form-select id="projectName" :options="selectOptoins" v-model="selected"></b-form-select>
-      </b-form>
-    </b-modal>
+   
   </div>
 </template>
 
@@ -130,7 +123,8 @@ export default {
       term: '',
       newBoardName:null,
       selected:null,
-      personalProjectId:''
+      personalProjectId:'',
+      boardLocate:'',
     }
   },
   watch: {
@@ -147,14 +141,6 @@ export default {
     }
   },
   computed: {
-    selectOptoins(){
-      const data=[];
-      data.push({text:'个人看板',value:this.personalProjectId})
-      for(let i=0;i<this.projectList.length;i++){
-        data.push({text:this.projectList[i].projectName,value:this.projectList[i].projectId})
-      }
-      return data;
-    },
     SortPersonalBoard() {
       var filterKey = this.term;
       var data = this.personalBoard;
@@ -183,20 +169,14 @@ export default {
     }
   },
   methods: {
-    newBoard(){
-      var params=new URLSearchParams;
-      params.append('boardName',this.newBoardName)
-      params.append('boardLocate',this.projectList.length)
-      params.append('projectId',this.selected)
-      console.log(params)
-      this.$ajax.post('/Board/newBoard',params,{
-         headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
-      }).then(res=>{
-        this.newBoardName=null
-        this.$router.push({path:'/board/'+res.data.data})
-      })
+      newBoard(ProjectId,BoardLocate){
+      this.selected=ProjectId;
+      const data=[];
+      data.push({text:'个人看板',value:this.personalProjectId})
+      for(let i=0;i<this.projectList.length;i++){
+        data.push({text:this.projectList[i].projectName,value:this.projectList[i].projectId})
+      }
+      Bus.$emit('showNewBoardModal',[data,ProjectId,BoardLocate])
     },
     showCollapse() {
       if (this.icon === 'chevron-down')
@@ -243,9 +223,6 @@ export default {
       }).catch(res => { console.log(res) })
     Bus.$on('search', value => {
       this.term = value;
-    })
-    Bus.$on('showNewBoardModal',()=>{
-      this.$refs.newBoardModal.show()
     })
   }
 }
