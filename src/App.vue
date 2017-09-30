@@ -1,17 +1,28 @@
 <template>
 
   <div id="app">
-    <header-menu></header-menu>
+  <header-menu v-show="isLogin"></header-menu>
   <router-view></router-view>
 </div>
 </template>
 
 <script>
   import HeaderMenu from "./common/header/header-menu.vue"
+  import Bus from "./bus"
 export default {
   components: {
   HeaderMenu},
-  name: 'app'
+  name: 'app',
+  data(){
+    return{
+      isLogin:false
+    }
+  },
+  created(){
+    Bus.$on('login_ok',()=>{
+      this.isLogin=true;
+    })
+  }
 }
 </script>
 

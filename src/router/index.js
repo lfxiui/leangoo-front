@@ -4,14 +4,20 @@ import Hello from '@/components/Hello'
 import ProFile from '@/components/user/profile'
 import BoardPage from '@/components/board/boardPage'
 import Project from '../components/project/project'
+import Login from '../components/login/login.vue'
 
 Vue.use(Router)
 
 export default new Router({
     routes: [{
             path: '/',
-            name: 'Hello',
-            component: Hello
+            name: 'login',
+            component: Login
+        },
+        {
+            path:'/index',
+            name:'Hello',
+            component:Hello
         },
         {
             path: '/profile',
@@ -24,7 +30,7 @@ export default new Router({
             component: BoardPage
         },
         {
-            path: '/project/:projectId',
+            path: '/project/:projectId/:tab',
             name: 'Project',
             component: Project
         }

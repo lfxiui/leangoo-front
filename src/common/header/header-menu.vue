@@ -2,7 +2,7 @@
   <b-navbar toggleable="md" style="background-color:rgba(0,0,0,0.15);" type="dark" :sticky="isSticky">
     <b-nav-toggle target="nav_collapse"></b-nav-toggle>
 
-    <b-navbar-brand to="/"><img src="../../assets/team_logo.png" height="34px" width="130px"></b-navbar-brand>
+    <b-navbar-brand to="/index"><img src="../../assets/team_logo.png" height="34px" width="130px"></b-navbar-brand>
 
     <b-nav-form>
       <input type="text" id="header-search" v-model="term">
@@ -28,9 +28,9 @@
           <div style="border-bottom: 1px rgb(140,140,140) inset;background-color:#F5F5F5 ">
             <h5 class="text-center">新建</h5>
           </div>
-          <span>新建看板</span>
+          <span  v-b-modal.newBoardModal>新建看板</span>
           <p>一个看板包括多个列表,每个列表包括多个任务卡片,团队通过看板共享任务,在线实时协作</p>
-          <span>新建项目</span>
+          <span @click="newProject">新建项目</span>
           <p>一个项目包括多个看板和多名项目成员,通过项目可以对看板进行分组管理,更好的实现项目协作</p>
         </div>
       </b-nav-item-dropdown>
@@ -62,6 +62,25 @@
         </b-nav-item-dropdown>
       </b-button-group>
     </b-nav>
+     <b-modal id="newProjectModal" ref="newProjectModal" title="新建项目" style="color:black" @ok="saveProject" ok-title="保存" close-title="取消" size="sm">
+      <b-form >
+           <b-form-group label-for="projectName" label="项目名称">
+             <b-form-input id="projectName" v-model="newProjectName"></b-form-input>
+           </b-form-group>
+           <b-form-group label="项目介绍(可空)" label-for="projectIntro">
+              <b-form-textarea id="projectIntro" :rows="4" v-model="newProjectIntro"></b-form-textarea>
+           </b-form-group>
+      </b-form>
+    </b-modal>
+
+    <b-modal id="newBoardModal" ref="newBoardModal" title="新建看板" style="color:black" @ok="newBoard" ok-title="保存" close-title="取消">
+      <b-form :inline="true">
+            <label for="newBoardName">看板名称</label>
+           <b-form-input id="newBoardName" size="sm" v-model="newBoardName"></b-form-input>
+           <label for="projectName">所属项目</label>
+           <b-form-select id="projectName" :options="selectOptions" v-model="selected"></b-form-select>
+      </b-form>
+    </b-modal>
   </b-navbar>
 </template>
 
@@ -78,16 +97,70 @@ export default {
       Bus.$emit('search',newValue);
     }
   },
+  methods:{
+    saveProject(){
+      if(this.newProjectName==''){
+        this.$notify.error({title:'错误',message:'项目名为空创建失败',duration: 3000})
+      }else{
+        var params=new URLSearchParams;
+        if(this.newProjectIntro!='')
+        var data={'projectName':this.newProjectName,'projectIntro':this.newProjectIntro}
+        else var data={'projectName':this.newProjectName}
+        this.$ajax.post('/Project/newProject',data).then(res=>{
+          this.newProjectIntro='';
+          this.newProjectName='';
+          this.$router.push({path:'/project/'+res.data.data+'/'+0}).catch(res=>this.$notify.error({title:'错误',message:'创建失败',duration: 3000}))
+        })
+      }
+    },
+     newBoard(){
+      var params=new URLSearchParams;
+      params.append('boardName',this.newBoardName)
+      params.append('boardLocate',this.boardLocate)
+      params.append('projectId',this.selected)
+      console.log(params)
+      this.$ajax.post('/Board/newBoard',params,{
+         headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      }).then(res=>{
+        this.newBoardName=null
+        this.$router.push({path:'/board/'+res.data.data})
+      })
+    },
+    newProject(){
+     this.$refs.newProjectModal.show()
+    }
+  },
   data() {
     return {
       isSticky: true,
       no_caret: true,
       userAccount: '',
-      term:''
+      term:'',
+      newProjectName:'',
+      newProjectIntro:'',
+      selectOptions:[],
+      newBoardName:'',
+      selected:'',
+      boardLocate:''
+      
     }
   },
   created() {
     this.$ajax.post('/Login/getUserInfo').then(res => { this.userAccount = res.data.data.userAccount}).catch(res=>{console.log(res)})
+    Bus.$on('selectOptions', data=>{
+        console.log(data)
+        this.selectOptions=data;
+    }),
+    Bus.$on('showNewBoardModal',data=>{
+
+      this.selectOptions=data[0];
+      console.log(this.selectOptions)
+      this.selected=data[1];
+      this.boardLocate=data[2];
+      this.$refs.newBoardModal.show()
+    })
   }
 }
 
@@ -119,14 +192,14 @@ export default {
 }
 
 .header-center li a {
-  color: white;
+  color: white ;
   cursor: pointer;
 }
 
 .ml-auto button {
-  height: 32px;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: rgb(255, 255, 255);
+  height: 32px ;
+  background-color: rgba(255, 255, 255, 0.3) ;
+  color: rgb(255, 255, 255) ;
   cursor: pointer;
 }
 
@@ -134,8 +207,8 @@ export default {
   font-size: 14px;
   line-height: 14px;
   height: 32px;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: rgb(255, 255, 255);
+  background-color: rgba(255, 255, 255, 0.3) ;
+  color: rgb(255, 255, 255) ;
   border-radius: 4px;
 }
 
@@ -143,8 +216,8 @@ export default {
   font-size: 14px;
   line-height: 14px;
   height: 32px;
-  background-color: rgba(255, 255, 255, 0.3);
-  color: rgb(255, 255, 255);
+  background-color: rgba(255, 255, 255, 0.3) ;
+  color: rgb(255, 255, 255) ;
   border-radius: 4px;
 }
 
@@ -155,7 +228,6 @@ export default {
 .newButton p {
   font-size: 12px;
   color: rgb(140, 140, 140);
-  cursor: pointer;
 }
 
 .newButton span {
