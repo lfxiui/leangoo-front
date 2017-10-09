@@ -45,21 +45,7 @@
           </b-button-group>
         </b-button-toolbar>
       </b-nav>
-      <b-nav is-nav-bar class="ml-auto">
-        <b-button-group size="sm" style="height:32px;">
-          <b-btn class="ml-3" variant="default" style="background-color: #0E74AF" @click="right=0">
-            <icon name="user" style="padding-top:2px"></icon>成员</b-btn>
-          <b-btn class="ml-3" variant="default" style="background-color: #0E74AF" @click="right=0">
-            <icon name="filter" style="padding-top:2px"></icon>筛选</b-btn>
-          <b-btn class="ml-3" variant="default" style="background-color: #0E74AF" @click="right=0">
-            <icon name="bars" style="padding-top:2px"></icon>菜单</b-btn>
-        </b-button-group>
-        <div class="slider-menu pull-right" :style="{'right':right+'px','height':height+'px'}">
-          <div class="slider-menu-close" @click="right=-300">
-            <icon name="chevron-right" scale="1.5" style="padding-top:5px"></icon>
-          </div>
-        </div>
-      </b-nav>
+
     </b-navbar>
     <div class="board_content_main" style="margin-left:20px;font-size:14px">
       <draggable v-model="List" :options="{'ghostClass':'ghost','animation':0,'group':'dragList','handle':'.list-title'}" style="align-items: flex-start" class="card-deck" @end="dragEnd">
@@ -71,9 +57,7 @@
               <template slot="button-content">
                 <icon name="bars"></icon>
               </template>
-              <b-dropdown-item>复制列表</b-dropdown-item>
-              <b-dropdown-item>创建引用</b-dropdown-item>
-              <b-dropdown-item @click.stop="delList(index)">删除列表</b-dropdown-item>
+              <b-dropdown-item-button @click.stop="delList(index)">删除列表</b-dropdown-item-button>
             </b-dd>
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee;">
@@ -166,7 +150,7 @@
         </div>
       </div>
     </b-modal>
-    <b-modal id="chartsModal" size="lg" @shown="chartsShow">
+    <b-modal id="chartsModal" size="lg" @shown="chartsShow" ok-title="保存" :ok-only="true">
       <div id="chartsContent" style="width:600px;height:400px;">
 
       </div>
@@ -182,6 +166,7 @@
 <script>
 import draggable from 'vuedraggable'
 import { formatDate } from '../../common/formatDate'
+import Bus from '../../bus'
 export default {
   components: { draggable },
   data() {
@@ -245,7 +230,7 @@ export default {
     newList() {
       var params = new URLSearchParams();
       params.append('listName', this.nListName)
-      if (this.List == null)
+      if (this.List === null||this.List.length===undefined)
         params.append('listLocate', 0)
       else params.append('listLocate', this.List.length)
       params.append('boardId', this.boardId)
@@ -275,15 +260,15 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded"
         }
       }).then(res => {
-        if (res.data.errcode == 0) {
-          this.List[index].cardList.splice(cindex, 1)
+        if (res.data.errcode === 0) {
+          this.List.splice(index,1);
           for (var tindex in this.List) {
             this.List[tindex].listLocate = tindex;
             for (var ctindex in this.List[tindex].cardList) {
               this.List[tindex].cardList[ctindex].cardListId = this.List[tindex].listId
               this.List[tindex].cardList[ctindex].cardLocate = ctindex;
             }
-          }
+          };
           this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List), {
             headers: {
               "Content-Type": "application/json"
@@ -420,7 +405,8 @@ export default {
       this.endDate = result.data.data.boardEndDate;
       this.t_endDate = this.endDate;
       this.t_startDate = this.startDate;
-    }).catch(res => { console.log(res) })
+    }).catch(res => { console.log(res) }),
+    Bus.$emit('login_ok')
   },
   filters: {
     formatDate(time) {
@@ -469,34 +455,6 @@ export default {
 .nav-button-drown>button:first-child::after {
   content: none;
 }
-
-.slider-menu {
-  transition: right .2s;
-  position: absolute;
-  top: 0;
-  width: 265px;
-  border: none;
-  right: 0px;
-  height: 400px;
-  background-color: #eeeeee;
-  box-shadow: -10px -7px 5px -10px #000;
-  z-index: 1000;
-}
-
-.slider-menu-close {
-  position: absolute;
-  z-index: 2;
-  top: 5px;
-  left: -30px;
-  width: 35px;
-  height: 30px;
-  cursor: pointer;
-  background: #eeeeee;
-  box-shadow: -10px -7px 5px -10px #000;
-  border-top-left-radius: 4px;
-  border-bottom-left-radius: 4px;
-}
-
 .task_view {
   position: relative;
   background-color: white;

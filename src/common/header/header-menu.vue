@@ -156,7 +156,6 @@ export default {
     Bus.$on('showNewBoardModal',data=>{
 
       this.selectOptions=data[0];
-      console.log(this.selectOptions)
       this.selected=data[1];
       this.boardLocate=data[2];
       this.$refs.newBoardModal.show()
@@ -198,8 +197,8 @@ export default {
 
 .ml-auto button {
   height: 32px ;
-  background-color: rgba(255, 255, 255, 0.3) ;
-  color: rgb(255, 255, 255) ;
+  background-color: rgba(255, 255, 255, 0.3) !important ;
+  color: rgb(255, 255, 255) ! important;
   cursor: pointer;
 }
 
@@ -207,8 +206,8 @@ export default {
   font-size: 14px;
   line-height: 14px;
   height: 32px;
-  background-color: rgba(255, 255, 255, 0.3) ;
-  color: rgb(255, 255, 255) ;
+  background-color: rgba(255, 255, 255, 0.3) ! important;
+  color: rgb(255, 255, 255) ! important;
   border-radius: 4px;
 }
 
@@ -216,8 +215,8 @@ export default {
   font-size: 14px;
   line-height: 14px;
   height: 32px;
-  background-color: rgba(255, 255, 255, 0.3) ;
-  color: rgb(255, 255, 255) ;
+  background-color: rgba(255, 255, 255, 0.3) ! important;
+  color: rgb(255, 255, 255) ! important;
   border-radius: 4px;
 }
 
@@ -227,7 +226,7 @@ export default {
 
 .newButton p {
   font-size: 12px;
-  color: rgb(140, 140, 140);
+  color: rgb(140, 140, 140) ! important;
 }
 
 .newButton span {

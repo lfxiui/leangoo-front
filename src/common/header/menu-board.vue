@@ -12,7 +12,7 @@
         <div>
           <b-list-group style="margin:7px">
             <b-list-group-item v-for="(item,index) in personalResult" :key="index" :tag="'a'" style="margin-bottom:4px;height:40px;border-radius:4px;">
-              <span class="thumbnail"></span>
+              <span class="thumbnail" @click.stop="router(item.boardId)"></span>
               <span class="board-list-item-name">{{item.boardName}}</span>
             </b-list-group-item>
           </b-list-group>
@@ -28,7 +28,7 @@
         <div>
           <b-list-group style="margin:7px">
             <b-list-group-item v-for="(item,index) in Project.boardList" :key="index" :tag="'a'" style="margin-bottom:4px;height:40px;border-radius:4px;">
-              <span class="thumbnail"></span>
+              <span class="thumbnail" @click="router(item.boardId)"></span>
               <span class="board-list-item-name">{{item.boardName}}</span>
             </b-list-group-item>
           </b-list-group>
@@ -48,6 +48,11 @@ export default {
       projectList: [],
       searchResult: [],
       personalResult: [],
+    }
+  },
+  methods:{
+    router(boardId){
+      this.$router.push({ path: '/board/' + boardId })
     }
   },
   watch: {
@@ -89,8 +94,8 @@ export default {
 
 .menu-board button {
   width: 300px;
-  background-color: white;
-  color: #428BCA;
+  background-color: white ! important;
+  color: #428BCA ! important;
   text-align: left;
   font-size: 14px;
   line-height: 14px;
@@ -105,7 +110,8 @@ export default {
 
 .thumbnail {
   position: absolute;
-  background-color: #0E74AF;
+  cursor: pointer;
+  background-color: #0E74AF  ! important;
   top: 0;
   left: 0;
   width: 45px;

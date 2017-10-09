@@ -1,7 +1,7 @@
 <template>
 
   <div id="app">
-  <header-menu v-show="isLogin"></header-menu>
+  <header-menu v-if="isLogin"></header-menu>
   <router-view></router-view>
 </div>
 </template>
@@ -21,6 +21,9 @@ export default {
   created(){
     Bus.$on('login_ok',()=>{
       this.isLogin=true;
+    }),
+    Bus.$on('login_not',()=>{
+      this.isLogin=false;
     })
   }
 }

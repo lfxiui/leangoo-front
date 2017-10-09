@@ -183,6 +183,7 @@
 </template>
 <script>
   import Icon from "../../../node_modules/vue-awesome/components/Icon";
+  import Bus from "../../bus"
   export  default {
     components: {Icon},
     methods: {
@@ -220,10 +221,11 @@
             form.userSex = res.data.data.userSex;
             form.userEmail = res.data.data.userEmail;
             form.userIntro = res.data.data.userIntro;
-            alert(res.data.info);
+            this.$notify.success({title:'提示',message:res.data.info})
+        
             this.notChangeInfo();
           }else{
-            alert(res.data.info);
+             this.$notify.error({title:'提示',message:res.data.info})
           }
         }).catch(res => {
           console.log(res)
@@ -233,9 +235,9 @@
         evt.preventDefault();
         var form2 = this.form2;
         if(form2.oldPwd != this.user.userPassword){
-            alert("原密码错误，请重新输入!")
+           this.$notify.error({title:'提示',message:"原密码错误，请重新输入!"})
         }else if(form2.newPwd != form2.newPwdConfirm){
-            alert("两次新密码输入不一致，请重新输入!")
+            this.$notify.error({title:'提示',message:"原密码错误，请重新输入!"})
         }else {
           this.$ajax.post('/User/changeUserPassword',
             JSON.stringify(this.form2),
@@ -247,11 +249,11 @@
           ).then((res) => {
             if(res.data.errcode === 0){
               this.user.userPassword = res.data.data.userPassword;
-              alert(res.data.info);
+               this.$notify.info({title:'提示',message:res.data.info})
               this.form2={oldPwd: '', newPwd: '', newPwdConfirm: ''};
               this.changePwdHide();
             }else{
-              alert(res.data.info);
+               this.$notify.error({title:'提示',message:res.data.info})
             }
           }).catch(res => {
             console.log(res)
@@ -278,9 +280,9 @@
         ).then((res) => {
           if(res.data.errcode === 0){
             this.friends = res.data.data;
-            alert(res.data.info);
+             this.$notify.info({title:'提示',message:res.data.info})
           }else{
-            alert(res.data.info);
+             this.$notify.error({title:'提示',message:res.data.info})
           }
         }).catch(res => {
           console.log(res)
@@ -299,9 +301,10 @@
         ).then((res) => {
           if(res.data.errcode === 0){
             this.friends = res.data.data;
-            alert(res.data.info);
+             this.$notify.success({title:'提示',message:res.data.info})
+       
           }else{
-            alert(res.data.info);
+             this.$notify.error({title:'提示',message:res.data.info})
           }
         }).catch(res => {
           console.log(res)
@@ -319,11 +322,11 @@
           }).then((res) => {
             if (res.data.errcode === 0) {
               this.user.userAvatar = res.data.data.userAvatar;
-              alert(res.data.info);
+               this.$notify.info({title:'提示',message:res.data.info})
               this.avatarInput = null;
               this.cardHide();
             } else {
-              alert(res.data.info)
+               this.$notify.error({title:'提示',message:res.data.info})
             }
           }).catch(res => {
             console.log(res)
@@ -371,6 +374,7 @@
       }
     },
     created() {
+      Bus.$emit('login_ok');
       this.$ajax.post('/User/getUserInfoById').then((res) => {
           var form = this.form;
         this.user = res.data.data;

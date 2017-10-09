@@ -42,7 +42,7 @@
         <b-tabs ref="tabs" card id="project-card-tab" v-model="tab">
           <b-tab title="看板">
             <div style="margin-left: 15%;margin-right: 15%">
-            <b-button variant="secondary" class="project-board">新建看板</b-button>
+            <b-button variant="secondary" class="project-board" @click.stop="newBoard">新建看板</b-button>
             <div v-for="(board,index) in boards" :key="index">
               <b-button variant="primary" class="project-board" @click="boardClick(board.boardId)">{{board.boardName}}</b-button>
             </div>
@@ -107,6 +107,7 @@
 
 <script>
   import Icon from "../../../node_modules/vue-awesome/components/Icon";
+  import Bus from "../../bus"
   export default {
     components: {Icon},
     data(){
@@ -132,6 +133,13 @@
         }
     },
     methods: {
+      newBoard(){
+        const data=[];
+        data.push({text:this.project.projectName,value:this.projectId})
+        if(this.boards.length!=null)
+        Bus.$emit('showNewBoardModal',[data,this.projectId,this.boards.length])
+        else Bus.$emit('showNewBoardModal',[data,this.projectId,0])
+      },
       changeInfo(){
         this.isChangeInfo = 'yes';
       },
@@ -147,10 +155,11 @@
           if(res.data.errcode === 0){
             this.project = res.data.data;
             this.form = res.data.data;
-            alert(res.data.info);
+             this.$notify.info({title:'提示',message:res.data.info})
+          
             this.notChangeInfo();
           }else{
-            alert(res.data.info);
+             this.$notify.error({title:'提示',message:res.data.info})
           }
         }).catch(res => {
           console.log(res)
@@ -169,9 +178,10 @@
         ).then((res) => {
           if(res.data.errcode === 0){
             this.leaguers = res.data.data;
-            alert(res.data.info);
+             this.$notify.info({title:'提示',message:res.data.info})
+         
           }else{
-            alert(res.data.info);
+            this.$notify.error({title:'提示',message:res.data.info})
           }
         }).catch(res => {
           console.log(res)
@@ -184,9 +194,10 @@
         ).then((res) => {
           if(res.data.errcode === 0){
             this.leaguers = res.data.data;
-            alert(res.data.info);
+             this.$notify.info({title:'提示',message:res.data.info})
+           
           }else{
-            alert(res.data.info);
+             this.$notify.error({title:'提示',message:res.data.info})
           }
         }).catch(res => {
           console.log(res)
@@ -198,9 +209,11 @@
           {headers:{"Content-Type": "application/json"}}
         ).then((res) => {
           if(res.data.errcode === 0){
-            alert(res.data.info);
+             this.$notify.info({title:'提示',message:res.data.info})
+         
           }else{
-            alert(res.data.info);
+             this.$notify.error({title:'提示',message:res.data.info})
+        
           }
         }).catch(res => {
           console.log(res)
@@ -227,6 +240,7 @@
       }*/
     },
     created(){
+      Bus.$emit('login_ok');
       this.$ajax.post('/Project/getProjectInfo',
         {projectId:this.projectId},
         {headers:{"Content-Type": "application/json"}}

@@ -7,9 +7,13 @@
 
 <script>
   import UserInfo from './userInfo.vue'
+  import Bus from '../../bus'
   export default {
       components : {
             UserInfo
+        },
+        created(){
+          Bus.$emit('login_ok')
         }
   }
 </script>
