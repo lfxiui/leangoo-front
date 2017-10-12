@@ -1,6 +1,6 @@
 <template>
   <div class="board_content">
-    <b-navbar toggleable="md" type="dark" style="background-color:rgb(14,116,175);">
+    <b-navbar toggleable="md" type="dark" style="background-color:rgb(14,116,175)">
       <b-navbar-brand href="#" v-b-modal.changeBoardNameModal>{{boardName}}</b-navbar-brand>
       <b-nav is-nav-bar>
         <b-button-toolbar>
@@ -29,11 +29,6 @@
             <b-btn variant="default" class="nav-button" v-b-modal.chartsModal>
               <icon name="area-chart"></icon>
             </b-btn>
-            <b-btn variant="default" class="nav-button">
-              <icon name="table"></icon>
-            </b-btn>
-            <b-btn variant="default" class="nav-button">
-              <icon name="group" style="padding-top:2px"></icon>项目成员可见</b-btn>
             <b-btn variant="default" class="nav-button" v-b-modal.newListModal>
               <icon name="plus" style="padding-top:2px"></icon>新建列表
             </b-btn>
@@ -45,24 +40,20 @@
           </b-button-group>
         </b-button-toolbar>
       </b-nav>
-
     </b-navbar>
     <div class="board_content_main" style="margin-left:20px;font-size:14px">
       <draggable v-model="List" :options="{'ghostClass':'ghost','animation':0,'group':'dragList','handle':'.list-title'}" style="align-items: flex-start" class="card-deck" @end="dragEnd">
         <b-card style="max-width:260px;background-color:#eeeeee;margin-left:1px" no-body v-for="(item,index) in List" :key="index" class="ml-1">
-          <b-card-header class="list-title" v-b-modal.changeListNameModal style="cursor:pointer" @click="selectListIndex=index">
+          <b-card-header class="list-title" v-b-modal.changeListNameModal style="cursor:pointer" @click.stop="selectListIndex=index">
             {{item.listName}}
             <b-badge variant="success">{{item.cardList.length}}</b-badge>
-            <b-dd size="sm" variant="default" class="float-right list-title-menu" style="background-color:#e7e7e7">
-              <template slot="button-content">
-                <icon name="bars"></icon>
-              </template>
-              <b-dropdown-item-button @click.stop="delList(index)">删除列表</b-dropdown-item-button>
-            </b-dd>
+            <a @click.stop="delList(index)" class="float-right">
+              <icon name="trash"></icon>
+            </a>
           </b-card-header>
           <div class="card-text" style="background-color:#eeeeee;">
-            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px;max-height:300px;overflow:auto" @end="dragEnd">
-              <div class="task_view btn btn-default" style="min-height:30px" v-for="(card,cindex) in item.cardList" :key="cindex" @mouseover.self="showEditAndDelete($event)" @mouseout.self="hideEditAndDelete($event)" v-b-modal.cardModal>
+            <draggable v-model="item.cardList" :options="{'ghostClass':'ghost','animation':0,'group':'description'}" :move="onMove" @update="datadragEnd" style="min-height:30px;max-height:600px;overflow:auto" @end="dragEnd">
+              <div class="task_view btn btn-default" v-for="(card,cindex) in item.cardList" :key="cindex" @mouseover.self="showEditAndDelete($event)" @mouseout.self="hideEditAndDelete($event)" v-b-modal.cardModal @click.stop="initCardInfo(card.cardId,card.cardName,cindex,index)">
                 <div class="edit-and-delete-card" style="display:block" @mouseover.self="showEditDiv">
                   <span style="cursor:pointer" @click.stop="delCard(index,cindex)">
                     <icon name="trash"></icon>
@@ -70,6 +61,11 @@
                 </div>
                 <div class="task-name-content" style="background-color:#EEEEEE">
                   <span class="card-name pull-left">{{card.cardName}}</span>
+                </div>
+                <div style="line-height:30px">
+                  <div class="avatar_headers">
+                    <img class="header-in-bar" v-for="(user,uindex) in card.userList" :key="uindex" :src="user.userAvatar" :title="user.userAccount">
+                  </div>
                 </div>
               </div>
             </draggable>
@@ -97,32 +93,46 @@
       <template slot="modal-cancel">取消</template>
       <b-form-input placeholder="请输入列表名" v-model="nListName"></b-form-input>
     </b-modal>
-    <b-modal id="cardModal" size="lg" :hide-footer="true" style="margin-top:50px">
+    <b-modal id="cardModal" size="lg" :hide-footer="true" @hide="hideCardModal">
       <div class="container" style="width:100%">
         <div class="row">
           <div class="col-md-9">
-            <b-form-textarea no-resize="true" :rows="1" v-model="cardName"></b-form-textarea>
-            <div class="cardDescription">
-              <span>添加描述</span>
+            <b-form-input no-resize="true" :rows="1" v-model="cardName"></b-form-input>
+           
+          <div class="card_workload">
+            <h3 style="font-size:15px;color:#8c8c8c;text-align:left;margin-top:10px">工作量</h3>
+              <b-badge class="float-left">20</b-badge>
+          </div>
+          <div class="clearfix"></div>
+          <div class="card_date">
+              <h3 style="font-size:15px;color:#8c8c8c;text-align:left;margin-top:10px">截止日期</h3>
+              <span class="float-left">10-10至10-25</span>
+          </div>
+          <div class="clearfix"></div>
+           <div class="card_member">
+              <h3 style="font-size:15px;color:#8c8c8c;text-align:left;margin-top:10px">成员</h3>
+              <div class="avatar_headers">
+                <img v-for="(item,index) in CUserList" :key="index" :src="item.userAvatar" class="header-in-bar">
+              </div>
+              <div class="clearfix"></div>
             </div>
           </div>
+          
+
           <div class="col-md-3">
             <ul class="cardModal-right-ul">
-              <li>测试</li>
+              <li>添加</li>
               <li>
                 <b-btn v-popover:foo.right variant="outline-secondary" size="sm" class="cardli-button">
                   <icon name="user"></icon>成员</b-btn>
                 <popover name="foo">
-                  <ul>
-                    <li>This is a Test</li>
-                    <li>This is a Test</li>
-                    <li>This is a Test</li>
+                  <ul class="user_list">
+                    <li style="width:100%;cursor:pointer" v-for="(item,index) in CprojectUserList" :key="index"><img :src="item.userAvatar" height="32" width="32">
+                      <span>{{item.userAccount}}</span>
+                      <icon name="check" v-if="item.isSelect" style="float:right"></icon>
+                    </li>
                   </ul>
                 </popover>
-              </li>
-              <li>
-                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
-                  <icon name="tag"></icon>标签</b-btn>
               </li>
               <li>
                 <b-btn variant="outline-secondary" size="sm" class="cardli-button">
@@ -133,14 +143,6 @@
                   <icon name="clock-o"></icon>截止时间</b-btn>
               </li>
               <li>操作</li>
-              <li>
-                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
-                  <icon name="copy"></icon>复制</b-btn>
-              </li>
-              <li>
-                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
-                  <icon name="long-arrow-right"></icon>移动</b-btn>
-              </li>
               <li>
                 <b-btn variant="outline-secondary" size="sm" class="cardli-button">
                   <icon name="trash"></icon>删除</b-btn>
@@ -155,7 +157,7 @@
 
       </div>
     </b-modal>
-     <b-modal id="changeBoardNameModal" size="sm" title="修改看板" @ok="changeBoardName" @shown="nBoardName=''" button-size="sm">
+    <b-modal id="changeBoardNameModal" size="sm" title="修改看板" @ok="changeBoardName" @shown="nBoardName=''" button-size="sm">
       <template slot="modal-ok">保存</template>
       <template slot="modal-cancel">取消</template>
       <b-form-input placeholder="请输入看板名" v-model="nBoardName"></b-form-input>
@@ -172,6 +174,7 @@ export default {
   data() {
     return {
       boardId: this.$route.params.boardId,
+      projectId: this.$route.params.projectId,
       boardName: '',
       right: -300,
       addCardIsOpen: false,
@@ -185,27 +188,47 @@ export default {
       t_endDate: '',
       nListName: '',
       picker_options: { firstDayOfWeek: 1 },
-      selectListIndex: -1,
-      nBoardName:'',
-      cardName:''
+      selectListIndex: 0,
+      nBoardName: '',
+      cardName: null,
+      selectCardId: -1,
+      projectUserList: [],
+      selectCardIndex: -1,
+      MselectListIndex: -1
+
 
     }
   },
   methods: {
-    changeBoardName(){
-      this.$ajax.post('/Board/updateBoard',{'boardId':this.boardId,'boardName':this.nBoardName}).then(res=>{
-        if(res.data.errcode==0)
-        this.boardName=this.nBoardName
+    hideCardModal() {
+
+      this.selectCardIndex = -1;
+      this.MselectListIndex = -1;
+
+    },
+    initCardInfo(cardId, cardName, cardIndex, listIndex) {
+      this.selectCardId = cardId;
+      this.cardName = cardName;
+      this.selectCardIndex = cardIndex;
+      this.MselectListIndex = listIndex;
+      this.$ajax.post('/Project/getProjectLeaguerList', { 'projectId': this.projectId }).then(res => {
+        this.projectUserList = res.data.data;
+      })
+    },
+    changeBoardName() {
+      this.$ajax.post('/Board/updateBoard', { 'boardId': this.boardId, 'boardName': this.nBoardName }).then(res => {
+        if (res.data.errcode == 0)
+          this.boardName = this.nBoardName
       })
     },
     chartsShow() {
       var myChart = this.echarts.init(document.getElementById('chartsContent'));
       var columns = [];
-      var data=[];
+      var data = [];
       for (let i = 0; i < this.List.length; i++)
         columns.push(this.List[i].listName);
-      for(let i=0;i<this.List.length;i++)
-      data.push({'value':this.List[i].cardList.length,'name':this.List[i].listName})
+      for (let i = 0; i < this.List.length; i++)
+        data.push({ 'value': this.List[i].cardList.length, 'name': this.List[i].listName })
       var option = {
         title: {
           text: '卡片分布图'
@@ -216,7 +239,7 @@ export default {
           left: 'center',
           data: columns
         },
-       series:[{type:'pie',radius:'65%',center:['50%','50%'], selectedMode: 'single',data:data}]
+        series: [{ type: 'pie', radius: '65%', center: ['50%', '50%'], selectedMode: 'single', data: data }]
       };
       myChart.setOption(option)
     },
@@ -230,7 +253,7 @@ export default {
     newList() {
       var params = new URLSearchParams();
       params.append('listName', this.nListName)
-      if (this.List === null||this.List.length===undefined)
+      if (this.List === null || this.List.length === undefined)
         params.append('listLocate', 0)
       else params.append('listLocate', this.List.length)
       params.append('boardId', this.boardId)
@@ -261,19 +284,19 @@ export default {
         }
       }).then(res => {
         if (res.data.errcode === 0) {
-          this.List.splice(index,1);
-          for (var tindex in this.List) {
-            this.List[tindex].listLocate = tindex;
-            for (var ctindex in this.List[tindex].cardList) {
-              this.List[tindex].cardList[ctindex].cardListId = this.List[tindex].listId
-              this.List[tindex].cardList[ctindex].cardLocate = ctindex;
+          this.List.splice(index, 1);
+          for (var lindex in this.List) {
+            this.List[lindex].listLocate = lindex
+            for (var cindex in this.List[lindex].cardList) {
+              this.List[lindex].cardList[cindex].cardListId = this.List[lindex].listId;
+              this.List[lindex].cardList[cindex].cardLocate = cindex
             }
           };
           this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List), {
             headers: {
               "Content-Type": "application/json"
             }
-          }).then(res => this.List = res.data.data).catch(res => console.log(res))
+          }).then(res => console.log(res)).catch(res => console.log(res))
         } else alert("删除失败")
       })
     },
@@ -386,12 +409,47 @@ export default {
     height() {
       return window.innerHeight - 150;
     },
+    CprojectUserList() {
+      var data = this.projectUserList;
+      if (this.MselectListIndex === -1)
+        return data;
+      else {
+        var Userdata = this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList;
+        for (let i in data) {
+          data[i].isSelect = false;
+        }
+        if (Userdata.length === 0)
+          return data;
+        for (let i in Userdata) {
+          for (let j in data) {
+            if (data[j].userId === Userdata.userId) {
+              data[j].isSelect = true;
+              break;
+            }
+          }
+          return data;
+        }
+      }
+    },
+    CUserList() {
+      if (this.MselectListIndex != -1)
+        return this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList
+      else return []
+    }
   },
   watch: {
     boardId() {
       this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
         this.boardName = result.data.data.boardName;
+        this.startDate = result.data.data.boardStartDate;
+        this.endDate = result.data.data.boardEndDate;
+        this.t_endDate = this.endDate;
+        this.t_startDate = this.startDate;
       }).catch(res => { console.log(res) })
+    },
+    '$route'(to, from) {
+      this.boardId = to.params.boardId;
+      this.$ajax.post('/Card/getCardList', { 'boardId': this.boardId }).then(res => { this.List = res.data.data }).catch(res => (console.log(res)));
     }
   },
   created() {
@@ -406,7 +464,7 @@ export default {
       this.t_endDate = this.endDate;
       this.t_startDate = this.startDate;
     }).catch(res => { console.log(res) }),
-    Bus.$emit('login_ok')
+      Bus.$emit('login_ok')
   },
   filters: {
     formatDate(time) {
@@ -455,19 +513,22 @@ export default {
 .nav-button-drown>button:first-child::after {
   content: none;
 }
+
 .task_view {
-  position: relative;
-  background-color: white;
+  position: relative ! important;
+  background-color: white ! important;
   margin: 3px auto;
   font-size: 14px;
   width: 96%;
   border: none;
   text-align: left;
   box-shadow: 1px 1px 1px 1px #c1c7c3;
+  word-wrap: break-word ! important;
+  white-space: pre-wrap ! important;
 }
 
 .task_view:hover {
-  background-color: #EEEEEE
+  background-color: #EEEEEE ! important
 }
 
 .edit-and-delete-card {
@@ -487,15 +548,6 @@ export default {
   padding: 0 !important;
   text-align: left;
   border: none;
-}
-
-.list-title-menu button {
-  background-color: #e7e7e7 ! important;
-  cursor: pointer ! important;
-}
-
-.list-title-menu ::after {
-  content: none ! important;
 }
 
 .task-top-area {
@@ -536,8 +588,31 @@ export default {
 }
 
 .cardDescription {
-  padding-left: 15px;
-  text-align: left;
+  margin: 0 auto;
+  float: left;
+}
+
+.user_list {
+  list-style-type: none;
+  padding-left: 0
+}
+
+.avatar_headers {
+  float: left;
+  position: relative;
+  max-width: 100%;
+}
+
+.avatar_headers>.header-in-bar {
+  position: relative;
+  top: 0;
+  left: 0;
+  height: 30px;
+  line-height: 30px;
+  width: 30px;
+  padding-top: 0;
+  float: left;
+  margin: 0 2px 2px 0;
 }
 
 .time-zone {

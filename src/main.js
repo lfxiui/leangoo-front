@@ -18,7 +18,7 @@ import Popover from 'vue-js-popover'
 import echarts from 'echarts'
 
 Vue.config.productionTip = false;
-//axios.defaults.baseURL='/api'
+axios.defaults.baseURL='/api'
 Vue.use(Popover)
 Vue.use(BootstrapVue)
 Vue.use(VueFuse)

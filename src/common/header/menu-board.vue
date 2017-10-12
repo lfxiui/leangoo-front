@@ -12,7 +12,7 @@
         <div>
           <b-list-group style="margin:7px">
             <b-list-group-item v-for="(item,index) in personalResult" :key="index" :tag="'a'" style="margin-bottom:4px;height:40px;border-radius:4px;">
-              <span class="thumbnail" @click.stop="router(item.boardId)"></span>
+              <span class="thumbnail" @click.stop="router(personalProjectId,item.boardId)"></span>
               <span class="board-list-item-name">{{item.boardName}}</span>
             </b-list-group-item>
           </b-list-group>
@@ -28,7 +28,7 @@
         <div>
           <b-list-group style="margin:7px">
             <b-list-group-item v-for="(item,index) in Project.boardList" :key="index" :tag="'a'" style="margin-bottom:4px;height:40px;border-radius:4px;">
-              <span class="thumbnail" @click="router(item.boardId)"></span>
+              <span class="thumbnail" @click="router(Project.projectId,item.boardId)"></span>
               <span class="board-list-item-name">{{item.boardName}}</span>
             </b-list-group-item>
           </b-list-group>
@@ -48,11 +48,12 @@ export default {
       projectList: [],
       searchResult: [],
       personalResult: [],
+      personalProjectId:null
     }
   },
   methods:{
-    router(boardId){
-      this.$router.push({ path: '/board/' + boardId })
+    router(projectId,boardId){
+      this.$router.push({ path: '/board/'+projectId+'/'+ boardId })
     }
   },
   watch: {
@@ -79,7 +80,8 @@ export default {
     Bus.$on('initProjectList', projectList => {
       this.projectList = projectList;
       this.searchResult=projectList;
-    })
+    });
+    Bus.$on('initPersonalProjectId',personalProjectId=>{this.personalProjectId=personalProjectId})
   }
 }
 

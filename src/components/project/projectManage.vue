@@ -166,7 +166,7 @@
         });
       },
       boardClick(boardId){
-        this.$router.push({path:'/board/'+boardId})
+        this.$router.push({path:'/board/'+this.projectId+'/'+boardId})
       },
       showAddLeaguer(){
         this.addLeaguerShow = 'yes';

@@ -23,7 +23,7 @@
                 </div>
               </b-card>
               <draggable v-model="personalBoard" class="card-deck" :move="checkMove" :options="dragOptions" @end="dataDragEnd">
-                <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
+                <b-card v-for="(Board,index) in SortPersonalBoard" :key="index" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(personalProjectId,Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
                     <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
                     <span class="archive_icon" @click.stop="archivePersonalBoard(Board.boardId,index)">
@@ -60,7 +60,7 @@
                 </div>
               </b-card>
               <draggable v-model="Project.boardList" class="card-deck" :move="checkMove" @end="dataDragEnd">
-                <b-card v-for="(Board,cindex) in Project.boardList" :key="cindex" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Board.boardId)">
+                <b-card v-for="(Board,cindex) in Project.boardList" :key="cindex" text-variant="white" class="text-center mb-4" no-body style="background-color:#DFECF4;height: 90px;max-width: 270px;cursor: pointer;min-width: 270px" border-variant="none" @click="router(Project.projectId,Board.boardId)">
                   <div class="card-text" style="color:rgb(85,85,85)">
                     <span style="font-size: 16px;line-height: 90px">{{Board.boardName}}</span>
                     <span class="archive_icon" @click.stop="archiveBoard(Board.boardId,index,cindex)">
@@ -327,8 +327,8 @@ export default {
     dataDragEnd(evt) {
 
     },
-    router(boardId) {
-      this.$router.push({ path: '/board/' + boardId })
+    router(projectId,boardId) {
+      this.$router.push({ path: '/board/' + projectId+'/'+boardId })
     },
     projectRouter(projectId, tab) {
       this.$router.push({ path: '/project/' + projectId + '/' + tab })
@@ -343,6 +343,7 @@ export default {
       }).catch(res => { console.log(res) });
     this.$ajax.post('/Project/getUserPersonalProjectId').then(res => {
       this.personalProjectId = res.data.data
+      Bus.$emit('initPersonalProjectId',this.personalProjectId)
     })
     this.$ajax.post('/Project/getUserProjectList').then((res) => {
       this.projectList = res.data.data;

@@ -1,12 +1,12 @@
 <template>
-  <b-navbar toggleable="md" style="background-color:rgba(0,0,0,0.15);" type="dark" :sticky="isSticky">
+  <b-navbar toggleable="md" style="background-color:rgba(0,0,0,0.15)" type="dark" :sticky="isSticky">
     <b-nav-toggle target="nav_collapse"></b-nav-toggle>
 
     <b-navbar-brand to="/index"><img src="../../assets/team_logo.png" height="34px" width="130px"></b-navbar-brand>
 
     <b-nav-form>
-      <input type="text" id="header-search" v-model="term">
-      <icon name="search" scale="1.2" style="color: white;position: relative;left: -25px;cursor: pointer"></icon>
+      <input type="text" id="header-search" v-model="term" :style="{'background-color':searchbg}" @blur="searchbg='rgba(255, 255, 255, 0.3)'" @focus="searchbg='white'">
+      <icon name="search" scale="1.2" style="color: white;position: relative;left: -25px;cursor: pointer" :style="{'color':searchIconBg}"></icon>
     </b-nav-form>
     <ul class="header-center">
       <li>
@@ -97,6 +97,13 @@ export default {
       Bus.$emit('search',newValue);
     }
   },
+  computed:{
+    searchIconBg(){
+      if(this.searchbg==='rgba(255, 255, 255, 0.3)')
+      return 'white'
+      else return 'black'
+    }
+  },
   methods:{
     saveProject(){
       if(this.newProjectName==''){
@@ -109,7 +116,7 @@ export default {
         this.$ajax.post('/Project/newProject',data).then(res=>{
           this.newProjectIntro='';
           this.newProjectName='';
-          this.$router.push({path:'/project/'+res.data.data+'/'+0}).catch(res=>this.$notify.error({title:'错误',message:'创建失败',duration: 3000}))
+          this.$router.push({path:'/project/'+res.data.data+'/'+0}).catch(res =>{this.$notify.error({title:'警告',message:'创建失败'})})
         })
       }
     },
@@ -125,7 +132,7 @@ export default {
         }
       }).then(res=>{
         this.newBoardName=null
-        this.$router.push({path:'/board/'+res.data.data})
+        this.$router.push({path:'/board/'+this.selected+'/'+res.data.data})
       })
     },
     newProject(){
@@ -143,8 +150,8 @@ export default {
       selectOptions:[],
       newBoardName:'',
       selected:'',
-      boardLocate:''
-      
+      boardLocate:'',
+      searchbg:'rgba(255, 255, 255, 0.3)',
     }
   },
   created() {

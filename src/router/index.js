@@ -25,7 +25,7 @@ export default new Router({
             component: ProFile
         },
         {
-            path: '/board/:boardId',
+            path: '/board/:projectId/:boardId',
             name: 'Board',
             component: BoardPage
         },
