@@ -36,7 +36,7 @@ export default {
                     }else this.$notify.error({title:'警告',message:'密码错误'})
                 })
             else this.$notify.error({title:'提示',message:'请完整填写信息'})
-           this.$router.push({ path: '/index' })
+            //this.$router.push({ path: '/index' })
         }
     },
     created(){

@@ -46,7 +46,7 @@
         </b-nav-item-dropdown>
       </b-button-group>
       <b-button-group>
-        <img src="../../assets/agzou.jpg" width="32px" height="32px">
+        <img :src="userAvatar" width="32px" height="32px">
         <b-nav-item-dropdown right variant="default" size="sm" :no-caret="no_caret">
           <template slot="button-content">
             {{userAccount}}
@@ -144,6 +144,7 @@ export default {
       isSticky: true,
       no_caret: true,
       userAccount: '',
+      userAvatar:'',
       term:'',
       newProjectName:'',
       newProjectIntro:'',
@@ -155,7 +156,7 @@ export default {
     }
   },
   created() {
-    this.$ajax.post('/Login/getUserInfo').then(res => { this.userAccount = res.data.data.userAccount}).catch(res=>{console.log(res)})
+    this.$ajax.post('/Login/getUserInfo').then(res => { this.userAccount = res.data.data.userAccount;this.userAvatar=res.data.data.userAvatar}).catch(res=>{console.log(res)})
     Bus.$on('selectOptions', data=>{
         console.log(data)
         this.selectOptions=data;

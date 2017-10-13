@@ -67,6 +67,7 @@
                     <img class="header-in-bar" v-for="(user,uindex) in card.userList" :key="uindex" :src="user.userAvatar" :title="user.userAccount">
                   </div>
                 </div>
+                <b-badge class="float-right">{{card.cardWorkload}}</b-badge>
               </div>
             </draggable>
           </div>
@@ -80,44 +81,36 @@
           </b-card-footer>
         </b-card>
       </draggable>
-      <div>
-        <ul>
-          <li v-for="(item,index) in List" :key="index">
-            {{item.cardList.length}}
-          </li>
-        </ul>
-      </div>
     </div>
     <b-modal id="changeListNameModal" size="sm" title="修改列表名" @ok="changeListName" @shown="nListName=''" button-size="sm">
       <template slot="modal-ok">保存</template>
       <template slot="modal-cancel">取消</template>
       <b-form-input placeholder="请输入列表名" v-model="nListName"></b-form-input>
     </b-modal>
-    <b-modal id="cardModal" size="lg" :hide-footer="true" @hide="hideCardModal">
+    <b-modal id="cardModal" size="lg" :hide-footer="true" @hide="hideCardModal" ref="cardModal"> 
       <div class="container" style="width:100%">
         <div class="row">
           <div class="col-md-9">
             <b-form-input no-resize="true" :rows="1" v-model="cardName"></b-form-input>
-           
-          <div class="card_workload">
-            <h3 style="font-size:15px;color:#8c8c8c;text-align:left;margin-top:10px">工作量</h3>
-              <b-badge class="float-left">20</b-badge>
-          </div>
-          <div class="clearfix"></div>
-          <div class="card_date">
+
+            <div class="card_workload">
+              <h3 style="font-size:15px;color:#8c8c8c;text-align:left;margin-top:10px">工作量</h3>
+              <b-badge class="float-left">{{card_workload}}</b-badge>
+            </div>
+            <div class="clearfix"></div>
+            <div class="card_date">
               <h3 style="font-size:15px;color:#8c8c8c;text-align:left;margin-top:10px">截止日期</h3>
-              <span class="float-left">10-10至10-25</span>
-          </div>
-          <div class="clearfix"></div>
-           <div class="card_member">
+              <span class="float-left">{{card_end_date}}</span>
+            </div>
+            <div class="clearfix"></div>
+            <div class="card_member">
               <h3 style="font-size:15px;color:#8c8c8c;text-align:left;margin-top:10px">成员</h3>
               <div class="avatar_headers">
-                <img v-for="(item,index) in CUserList" :key="index" :src="item.userAvatar" class="header-in-bar">
+                <img v-for="(item,index) in CUserList" :key="index" :src="item.userAvatar" class="header-in-bar" :title="item.userAccount" @click.stop="removeCardUser(index)">
               </div>
               <div class="clearfix"></div>
             </div>
           </div>
-          
 
           <div class="col-md-3">
             <ul class="cardModal-right-ul">
@@ -127,24 +120,31 @@
                   <icon name="user"></icon>成员</b-btn>
                 <popover name="foo">
                   <ul class="user_list">
-                    <li style="width:100%;cursor:pointer" v-for="(item,index) in CprojectUserList" :key="index"><img :src="item.userAvatar" height="32" width="32">
+                    <li style="width:100%;cursor:pointer" v-for="(item,index) in projectUserList" :key="index" @click="addCardUser(item)"><img :src="item.userAvatar" height="32" width="32">
                       <span>{{item.userAccount}}</span>
-                      <icon name="check" v-if="item.isSelect" style="float:right"></icon>
+                      <icon name="check" v-if="checkSelect(item.userId)" style="float:right"></icon>
                     </li>
                   </ul>
                 </popover>
               </li>
               <li>
-                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button" v-popover:workload>
                   <icon name="th"></icon>工作量</b-btn>
+                <popover name="workload">
+                  <ul style="list-style:none;padding-left:0">
+                    <li style="border: 1px solid rgba(0,0,0,.15);width:100%;margin:5px;cursor:pointer" v-for="(item,index) in workloadList" :key="index" @click="updateWorkLoad(item)">
+                      <span>{{item}}</span>
+                    </li>
+                  </ul>
+                </popover>
               </li>
               <li>
-                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
-                  <icon name="clock-o"></icon>截止时间</b-btn>
+
+                <el-date-picker type="date" placeholder="截止时间" size="small" style="width:115px" v-model="cardEndDate"></el-date-picker>
               </li>
               <li>操作</li>
               <li>
-                <b-btn variant="outline-secondary" size="sm" class="cardli-button">
+                <b-btn variant="outline-secondary" size="sm" class="cardli-button" @click="MdelCard()">
                   <icon name="trash"></icon>删除</b-btn>
               </li>
             </ul>
@@ -194,17 +194,62 @@ export default {
       selectCardId: -1,
       projectUserList: [],
       selectCardIndex: -1,
-      MselectListIndex: -1
+      MselectListIndex: -1,
+      workloadList: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 40],
+      cardEndDate: '',
+      userIndex:''
 
 
     }
   },
   methods: {
+    checkSelect(userId){
+      if(this.MselectListIndex==-1)
+      return false;
+      var data=this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList
+      for(let i in data){
+        if(data[i].userId===userId){
+        this.userIndex=i;
+        return true;
+        }
+      }return false;   
+    },
+    addCardUser(user){
+      if(this.checkSelect(user.userId))
+      this.removeCardUser(this.userIndex)
+      else this.$ajax.post('/Card/addCardUser',{'userId':user.userId,'cardId':this.selectCardId}).then(res=>{
+        if(res.data.data>0)
+         this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList.push(user);
+      })  
+    },
+    removeCardUser(index){
+      const userId=this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList[index].userId;
+      this.$ajax.post('/Card/removeCardUser',{'userId':userId,'cardId':this.selectCardId}).then(res=>{
+        if(res.data.data>0)
+         this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList.splice(index,1);
+      })
+    },
+    MdelCard(){
+      const listIndex=this.MselectListIndex;
+      const cardIndex=this.selectCardIndex;
+      this.delCard(listIndex,cardIndex);
+      this.$refs.cardModal.hide();
+    },
+    updateWorkLoad(workload) {
+      const cardId = this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardId;
+      this.$ajax.post('/Card/changeCard', { 'cardId': cardId, 'cardWorkload': workload }).then(res => {
+        if (res.data.data > 0)
+          this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardWorkload = workload;
+      })
+    },
     hideCardModal() {
-
-      this.selectCardIndex = -1;
-      this.MselectListIndex = -1;
-
+      const cardId = this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardId;
+      this.$ajax.post('/Card/changeCard', { 'cardId': cardId, 'cardName': this.cardName }).then(res => {
+        if (res.data.data > 0)
+          this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardName = this.cardName;
+        this.selectCardIndex = -1;
+        this.MselectListIndex = -1;
+      });
     },
     initCardInfo(cardId, cardName, cardIndex, listIndex) {
       this.selectCardId = cardId;
@@ -406,31 +451,19 @@ export default {
     },
   },
   computed: {
+    card_end_date() {
+      if (this.MselectListIndex != -1 && this.selectCardIndex != -1)
+        return this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardEndDate;
+      else return '';
+    },
+    card_workload() {
+      if (this.MselectListIndex != -1 && this.selectCardIndex != -1)
+        return this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardWorkload
+      else return '';
+    },
     height() {
       return window.innerHeight - 150;
-    },
-    CprojectUserList() {
-      var data = this.projectUserList;
-      if (this.MselectListIndex === -1)
-        return data;
-      else {
-        var Userdata = this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList;
-        for (let i in data) {
-          data[i].isSelect = false;
-        }
-        if (Userdata.length === 0)
-          return data;
-        for (let i in Userdata) {
-          for (let j in data) {
-            if (data[j].userId === Userdata.userId) {
-              data[j].isSelect = true;
-              break;
-            }
-          }
-          return data;
-        }
-      }
-    },
+    }, 
     CUserList() {
       if (this.MselectListIndex != -1)
         return this.List[this.MselectListIndex].cardList[this.selectCardIndex].userList
@@ -438,6 +471,20 @@ export default {
     }
   },
   watch: {
+    cardEndDate(newValue) {
+      if (newValue != '') {
+        const cardEndDate = formatDate(new Date(newValue), 'yyyy-MM-dd');
+        console.log(cardEndDate)
+        this.cardEndDate = '';
+        const cardId = this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardId;
+        this.$ajax.post('/Card/changeCard', { 'cardId': cardId, 'cardEndDate': cardEndDate }).then(res => {
+          if (res.data.data > 0)
+            this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardEndDate = cardEndDate;
+        })
+      }
+
+
+    },
     boardId() {
       this.$ajax.post('/Board/getBoardById', { 'boardId': this.boardId }).then(result => {
         this.boardName = result.data.data.boardName;
