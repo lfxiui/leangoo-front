@@ -19,6 +19,7 @@ import echarts from 'echarts'
 
 Vue.config.productionTip = false;
 //axios.defaults.baseURL='/api'
+axios.defaults.baseURL='/leangoo'
 Vue.use(Popover)
 Vue.use(BootstrapVue)
 Vue.use(VueFuse)

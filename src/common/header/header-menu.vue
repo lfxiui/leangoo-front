@@ -58,7 +58,7 @@
           <b-dropdown-item href="#">版本更新</b-dropdown-item>
           <b-dropdown-item href="#">返回首页</b-dropdown-item>
           <b-dropdown-divider></b-dropdown-divider>
-          <b-dropdown-item href="#">退出 </b-dropdown-item>
+          <b-dropdown-item href="/logout">退出 </b-dropdown-item>
         </b-nav-item-dropdown>
       </b-button-group>
     </b-nav>
@@ -161,6 +161,9 @@ export default {
         console.log(data)
         this.selectOptions=data;
     }),
+    Bus.$on('updateAvatar',res=>{
+      this.userAvatar=res;
+    })
     Bus.$on('showNewBoardModal',data=>{
 
       this.selectOptions=data[0];

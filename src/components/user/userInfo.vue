@@ -322,6 +322,7 @@
           }).then((res) => {
             if (res.data.errcode === 0) {
               this.user.userAvatar = res.data.data.userAvatar;
+              Bus.$emit('updateAvatar',this.user.userAvatar);
                this.$notify.info({title:'提示',message:res.data.info})
               this.avatarInput = null;
               this.cardHide();
