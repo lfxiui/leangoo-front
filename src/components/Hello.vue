@@ -189,9 +189,9 @@ export default {
         this.archiveBoardList = res.data.data
       }).catch(res => { console.log(res) })
     },
-    reArchiveProject(projectId){
-      this.$ajax.post('/Project/reArchiveProject',{'projectId':projectId}).then(res=>{
-         if (res.data.data > 0) {
+    reArchiveProject(projectId) {
+      this.$ajax.post('/Project/reArchiveProject', { 'projectId': projectId }).then(res => {
+        if (res.data.data > 0) {
           this.$notify.info({ title: '提示', message: '撤销成功' });
           this.$ajax.post('/Project/getUserProjectList').then((res) => {
             this.projectList = res.data.data;
@@ -206,12 +206,12 @@ export default {
               this.personalBoard = res.data.data
             Bus.$emit('initPersonalBoard', this.personalBoard)
           }).catch(res => { console.log(res) });
-        }else this.$notify.error({ title: '提示', message: '操作失败' })
+        } else this.$notify.error({ title: '提示', message: '操作失败' })
       })
     },
-    delProject(projectId){
-      this.$ajax.post('/Project/delProject',{'projectId':projectId}).then(res=>{
-         if (res.data.data > 0) {
+    delProject(projectId) {
+      this.$ajax.post('/Project/delProject', { 'projectId': projectId }).then(res => {
+        if (res.data.data > 0) {
           this.$notify.info({ title: '提示', message: '删除成功' });
           this.$ajax.post('/Project/getUserProjectList').then((res) => {
             this.projectList = res.data.data;
@@ -226,7 +226,7 @@ export default {
               this.personalBoard = res.data.data
             Bus.$emit('initPersonalBoard', this.personalBoard)
           }).catch(res => { console.log(res) });
-        }else this.$notify.error({ title: '提示', message: '操作失败' })
+        } else this.$notify.error({ title: '提示', message: '操作失败' })
       })
     },
     reArchiveBoard(boardId) {
@@ -246,13 +246,13 @@ export default {
               this.personalBoard = res.data.data
             Bus.$emit('initPersonalBoard', this.personalBoard)
           }).catch(res => { console.log(res) });
-        }else this.$notify.error({ title: '提示', message: '操作失败' })
+        } else this.$notify.error({ title: '提示', message: '操作失败' })
       })
     },
-    delBoard(boardId){
-      this.$ajax.post('/Board/delBoard',{'boardId':boardId}).then(res=>{
-        if(res.data.data>0){
-            this.$notify.info({ title: '提示', message: '删除成功' });
+    delBoard(boardId) {
+      this.$ajax.post('/Board/delBoard', { 'boardId': boardId }).then(res => {
+        if (res.data.data > 0) {
+          this.$notify.info({ title: '提示', message: '删除成功' });
           this.$ajax.post('/Project/getUserProjectList').then((res) => {
             this.projectList = res.data.data;
             this.searchResult = res.data.data;
@@ -266,7 +266,7 @@ export default {
               this.personalBoard = res.data.data
             Bus.$emit('initPersonalBoard', this.personalBoard)
           }).catch(res => { console.log(res) });
-        }else this.$notify.error({ title: '提示', message: '操作失败' })
+        } else this.$notify.error({ title: '提示', message: '操作失败' })
       })
     },
     archiveProject(projectId) {
@@ -298,7 +298,7 @@ export default {
       this.$ajax.post('/Board/archiveBoard', { 'boardId': boardId }).then(res => {
         if (res.data.data > 0) {
           this.$notify.info({ title: '提示', message: '归档成功' });
-          this.projectList[pindex].boardList.splice(bindex);
+          this.projectList[pindex].boardList.splice(bindex, 1); 
           this.initArchiveData();
         } else is.$notify.error({ title: '警告', message: '归档失败' })
       })
@@ -327,28 +327,36 @@ export default {
     dataDragEnd(evt) {
 
     },
-    router(projectId,boardId) {
-      this.$router.push({ path: '/board/' + projectId+'/'+boardId })
+    router(projectId, boardId) {
+      this.$router.push({ path: '/board/' + projectId + '/' + boardId })
     },
     projectRouter(projectId, tab) {
       this.$router.push({ path: '/project/' + projectId + '/' + tab })
     }
   },
   created() {
-     this.$ajax.post('/Project/getArchiveProject').then((res) => {
-        this.archiveProjectList = res.data.data
-      }).catch(res => { console.log(res) });
-      this.$ajax.post('/Board/getArchiveBoardList').then((res) => {
-        this.archiveBoardList = res.data.data
-      }).catch(res => { console.log(res) });
-    this.$ajax.post('/Project/getUserPersonalProjectId').then(res => {
-      this.personalProjectId = res.data.data
-      Bus.$emit('initPersonalProjectId',this.personalProjectId)
-    })
+    this.$ajax.post('/Project/getArchiveProject').then((res) => {
+      this.archiveProjectList = res.data.data
+    }).catch(res => { console.log(res) });
+    this.$ajax.post('/Board/getArchiveBoardList').then((res) => {
+      this.archiveBoardList = res.data.data
+    }).catch(res => { console.log(res) });
     this.$ajax.post('/Project/getUserProjectList').then((res) => {
       this.projectList = res.data.data;
-      this.searchResult = res.data.data
-      Bus.$emit('initProjectList', this.projectList)
+      this.searchResult = res.data.data;
+      Bus.$emit('initProjectList', this.projectList);
+      this.$ajax.post('/Project/getUserPersonalProjectId').then(res => {
+        this.personalProjectId = res.data.data;
+        this.selected = this.personalProjectId;
+        const data = [];
+        data.push({ text: '个人看板', value: this.personalProjectId })
+        for (let i = 0; i < this.projectList.length; i++) {
+          data.push({ text: this.projectList[i].projectName, value: this.projectList[i].projectId })
+        }
+        Bus.$emit('selectOptions', [data, this.selected, 99])
+        Bus.$emit('initPersonalProjectId', this.personalProjectId);
+
+      })
     }).catch(res => {
       console.log(res)
     }),

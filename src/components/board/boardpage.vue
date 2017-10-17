@@ -232,8 +232,28 @@ export default {
     MdelCard(){
       const listIndex=this.MselectListIndex;
       const cardIndex=this.selectCardIndex;
-      this.delCard(listIndex,cardIndex);
-      this.$refs.cardModal.hide();
+       this.$ajax.post('/Card/delCard', this.List[listIndex].cardList[cardIndex]).then(res => {
+        if (res.data.errcode == 0) {
+          this.List[listIndex].cardList.splice(cardIndex, 1)
+          for (var tindex in this.List) {
+            this.List[tindex].listLocate = tindex;
+            for (var ctindex in this.List[tindex].cardList) {
+              this.List[tindex].cardList[ctindex].cardListId = this.List[tindex].listId
+              this.List[tindex].cardList[ctindex].cardLocate = ctindex;
+            }
+          }
+          this.MselectListIndex=-1;
+          this.selectCardIndex=-1;
+          this.$refs.cardModal.hide();
+          this.$ajax.post("/Card/updateCardList", JSON.stringify(this.List), {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }).then(res => console.log(res)).catch(res => console.log(res))
+        }
+        else alert("删除失败")
+      })
+     
     },
     updateWorkLoad(workload) {
       const cardId = this.List[this.MselectListIndex].cardList[this.selectCardIndex].cardId;

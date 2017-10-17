@@ -7,7 +7,7 @@
             <el-button type="info" style="width:100%;background-color:#2d8cf0;margin:0" v-show="start" @click="startClick">开始</el-button>
             <el-button type="success" style="width:100%;margin:0" v-show="islogin" @click="login">登录</el-button>
             <el-input placeholder="用户名,没有会自动注册哦" style="margin-top:20px;width:100%" v-show="islogin" v-model="account"></el-input>
-            <el-input placeholder="密码" style="margin-top:20px;width:100%" v-show="islogin" type="password" v-model="pwd"></el-input>
+            <el-input placeholder="密码" style="margin-top:20px;width:100%" v-show="islogin" type="password" v-model="pwd" @keyup.enter.native="login"></el-input>
         </div>
     </div>
 </template>
